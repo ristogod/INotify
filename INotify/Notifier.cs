@@ -489,17 +489,12 @@ namespace INotify
 
             public PropertyDependencyMapper OverridesWithoutBaseReference()
             {
-                foreach (var dependency in _notifier.LocalPropertyDependencies)
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifier.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifier.ReferencedCollectionDependencies)
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifier.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                    dependency.Value.Free(_dependentPropertyName);
+                foreach (var dependency in
+                    _notifier.LocalPropertyDependencies.Concat(_notifier.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                             .Concat(_notifier.ReferencedCollectionDependencies)
+                             .Concat(_notifier.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                             .Select(kvp => kvp.Value))
+                    dependency.Free(_dependentPropertyName);
 
                 return this;
             }

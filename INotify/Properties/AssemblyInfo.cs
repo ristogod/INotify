@@ -4,10 +4,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("INotify")]
 [assembly: AssemblyDescription("Inheritable classes that implement notifying interfaces for use with WPF.")]
 #if DEBUG
+
 [assembly: AssemblyConfiguration("Debug")]
 #else
 [assembly: AssemblyConfiguration("Release")]
 #endif
+
 [assembly: AssemblyCompany("Nathan.Risto")]
 [assembly: AssemblyProduct("INotify")]
 [assembly: AssemblyCopyright("Copyright © Nathan.Risto 2015")]

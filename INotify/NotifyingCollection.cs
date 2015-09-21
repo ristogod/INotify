@@ -825,22 +825,14 @@ namespace INotify
 
             public PropertyDependencyMapper OverridesWithoutBaseReference()
             {
-                foreach (var dependency in _notifyingCollection.LocalPropertyDependencies)
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifyingCollection.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifyingCollection.ReferencedCollectionDependencies)
-                    dependency.Value.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifyingCollection.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                    dependency.Value.Free(_dependentPropertyName);
-
-                _notifyingCollection._localCollectionDependencies.Free(_dependentPropertyName);
-
-                foreach (var dependency in _notifyingCollection._localCollectionItemsDependencies)
-                    dependency.Value.Free(_dependentPropertyName);
+                foreach (var dependency in
+                    _notifyingCollection.LocalPropertyDependencies.Concat(_notifyingCollection.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                                        .Concat(_notifyingCollection.ReferencedCollectionDependencies)
+                                        .Concat(_notifyingCollection.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                                        .Concat(_notifyingCollection._localCollectionItemsDependencies)
+                                        .Select(kvp => kvp.Value)
+                                        .Concat(new[] { _notifyingCollection._localCollectionDependencies }))
+                    dependency.Free(_dependentPropertyName);
 
                 return this;
             }
