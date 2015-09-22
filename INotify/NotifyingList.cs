@@ -21,6 +21,6 @@ namespace INotify
             Initialize();
         }
 
-        internal override void ConfigureProperties() {}
+        protected override void ConfigureProperties() {}
     }
 }
