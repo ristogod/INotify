@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Windows.Input;
 using INotify.Extensions;
 
 namespace INotify
@@ -10,7 +11,6 @@ namespace INotify
     {
         internal readonly List<Action> Executions = new List<Action>();
         internal readonly List<Property> List = new List<Property>();
-
         internal PropertyDependencyDefinitions Affects<TProp>(Expression<Func<TProp>> property, Func<bool> condition = null) => Affects(property.GetName(), condition);
 
         internal PropertyDependencyDefinitions Affects(string property, Func<bool> condition = null)
@@ -30,6 +30,17 @@ namespace INotify
         public PropertyDependencyDefinitions Execute(Action action)
         {
             Executions.Add(action);
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Execute(ICommand command)
+        {
+            Executions.Add(() =>
+                           {
+                               if (command.CanExecute(null))
+                                   command.Execute(null);
+                           });
+
             return this;
         }
 

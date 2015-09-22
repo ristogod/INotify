@@ -13,13 +13,9 @@ namespace INotify
         }
 
         public bool CanRaise => _conditions.Count == 0 || _conditions.TrueForAll(condition => condition());
-
         public string Name { get; }
-
         public override bool Equals(object obj) => Name.Equals((obj as Property)?.Name ?? obj as string);
-
         public bool Equals(string name) => Name.Equals(name);
-
         public override int GetHashCode() => Name.GetHashCode();
 
         public void SetCondition(Func<bool> condition)

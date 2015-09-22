@@ -219,9 +219,7 @@ namespace INotify
         }
 
         protected void Initialize() => ConfigureProperties();
-
         internal abstract void ConfigureProperties();
-
         protected PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
 
         protected bool SetValue<TProp>(TProp value, Expression<Func<TProp>> property, bool notifyWhenUnchanged = false)
