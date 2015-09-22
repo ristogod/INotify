@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Windows.Input;
 using INotify.Extensions;
 
 namespace INotify
@@ -33,14 +32,15 @@ namespace INotify
             return this;
         }
 
-        public PropertyDependencyDefinitions Execute(ICommand command)
+        public PropertyDependencyDefinitions Raise(RelayCommand command)
         {
-            Executions.Add(() =>
-                           {
-                               if (command.CanExecute(null))
-                                   command.Execute(null);
-                           });
+            Executions.Add(command.RaiseCanExecuteChanged);
+            return this;
+        }
 
+        public PropertyDependencyDefinitions Raise<TParam>(RelayCommand<TParam> command)
+        {
+            Executions.Add(command.RaiseCanExecuteChanged);
             return this;
         }
 

@@ -53,6 +53,7 @@ namespace INotify
         public bool CanExecute(object parameter) => _canExecute?.Invoke((T)parameter) ?? true;
 
         public void Execute(object parameter) => _execute((T)parameter);
+        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 
     /// <summary>
@@ -102,5 +103,6 @@ namespace INotify
         public bool CanExecute(object parameter) => _canExecute?.Invoke() ?? true;
 
         public void Execute(object parameter) => _execute();
+        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 }
