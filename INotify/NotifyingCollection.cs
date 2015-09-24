@@ -593,9 +593,9 @@ namespace INotify
 
         protected new PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
 
-        protected PropertyDependencyDefinitions WhenCollectionNotifies() => _localCollectionDependencies;
+        protected PropertyDependencyDefinitions CollectionChange() => _localCollectionDependencies;
 
-        protected PropertyDependencyDefinitions WhenCollectionItemPropertyNotifies<TItem, TProp>(Expression<Func<TItem, TProp>> property) => _localCollectionItemsDependencies.Get(property.GetName());
+        protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TItem, TProp>(Expression<Func<TItem, TProp>> property) => _localCollectionItemsDependencies.Get(property.GetName());
 
         private void CheckPropertyEnds(long session, Action action)
         {

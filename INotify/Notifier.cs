@@ -14,17 +14,17 @@ namespace INotify
     {
         internal static readonly CollectionsSessionDictionary CollectionSessions = new CollectionsSessionDictionary();
         internal static readonly PropertiesSessionDictionary PropertySessions = new PropertiesSessionDictionary();
-        private static readonly object Locker = new object();
         private static long _session;
+        private static readonly object Locker = new object();
+        internal readonly PropertyDependenciesDictionary LocalPropertyDependencies = new PropertyDependenciesDictionary();
+        internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new PropertyDependenciesDictionary();
+        internal readonly ReferencePropertyDependenciesDictionary ReferencedCollectionItemPropertyDependencies = new ReferencePropertyDependenciesDictionary();
+        internal readonly ReferencePropertyDependenciesDictionary ReferencedPropertyDependencies = new ReferencePropertyDependenciesDictionary();
         private readonly PropertyReferenceDictionary<IReactToCollectionItemProperty> _collectionItemsReferenceMap = new PropertyReferenceDictionary<IReactToCollectionItemProperty>();
         private readonly PropertyReferenceDictionary<INotifyCollectionChanged> _collectionReferenceMap = new PropertyReferenceDictionary<INotifyCollectionChanged>();
         private readonly ConcurrentDictionary<string, object> _dependentPropertyValuesDictionary = new ConcurrentDictionary<string, object>();
         private readonly PropertyReferenceDictionary<INotifyPropertyChanged> _propertyReferenceMap = new PropertyReferenceDictionary<INotifyPropertyChanged>();
         private readonly ConcurrentDictionary<string, object> _propertyValuesDictionary = new ConcurrentDictionary<string, object>();
-        internal readonly PropertyDependenciesDictionary LocalPropertyDependencies = new PropertyDependenciesDictionary();
-        internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new PropertyDependenciesDictionary();
-        internal readonly ReferencePropertyDependenciesDictionary ReferencedCollectionItemPropertyDependencies = new ReferencePropertyDependenciesDictionary();
-        internal readonly ReferencePropertyDependenciesDictionary ReferencedPropertyDependencies = new ReferencePropertyDependenciesDictionary();
         private bool _isNotificationsEnabled;
 
         protected Notifier()
@@ -155,14 +155,14 @@ namespace INotify
             }
         }
 
-        protected PropertyDependencyDefinitions WhenCollectionNotifies<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged => ReferencedCollectionDependencies.Get(property.GetName());
+        protected PropertyDependencyDefinitions CollectionChangeFor<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged => ReferencedCollectionDependencies.Get(property.GetName());
 
-        protected PropertyDependencyDefinitions WhenCollectionItemPropertyNotifies<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
+        protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             => ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
 
-        protected PropertyDependencyDefinitions WhenPropertyNotifies<TProp>(Expression<Func<TProp>> property) => LocalPropertyDependencies.Get(property.GetName());
+        protected PropertyDependencyDefinitions PropertyChangeFor<TProp>(Expression<Func<TProp>> property) => LocalPropertyDependencies.Get(property.GetName());
 
-        protected PropertyDependencyDefinitions WhenReferencePropertyNotifies<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
+        protected PropertyDependencyDefinitions PropertyChangeFor<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
             => ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
 
         protected TProp GetValue<TProp>(Expression<Func<TProp>> property, Func<TProp> function)
@@ -219,9 +219,7 @@ namespace INotify
         }
 
         protected void Initialize() => ConfigureProperties();
-
         internal abstract void ConfigureProperties();
-
         protected PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
 
         protected bool SetValue<TProp>(TProp value, Expression<Func<TProp>> property, bool notifyWhenUnchanged = false)
