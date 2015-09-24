@@ -72,95 +72,10 @@ namespace INotify
         }
 
         public T FirstItem => GetValue(() => FirstItem, () => Count > 0 ? this[0] : default(T));
-
         public T LastItem => GetValue(() => LastItem, () => Count > 0 ? this[Count - 1] : default(T));
-
-        bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
-
-        object ICollection.SyncRoot => ((ICollection)_list).SyncRoot;
-
-        bool IList.IsFixedSize => ((IList)_list).IsFixedSize;
-
-        bool IList.IsReadOnly => ((IList)_list).IsReadOnly;
-
-        object IList.this[int index]
-        {
-            get { return this[index]; }
-            set
-            {
-                try
-                {
-                    this[index] = (T)value;
-                }
-                catch (InvalidCastException invalidCastException)
-                {
-                    throw new InvalidCastException($"{value.GetType()} cannot be converted to {typeof(T)}", invalidCastException);
-                }
-            }
-        }
-
         void ICollection.CopyTo(Array array, int arrayIndex) => ((ICollection)_list).CopyTo(array, arrayIndex);
-
-        int IList.Add(object item)
-        {
-            var index = -1;
-            if (!(item is T))
-                return index;
-
-            var t = (T)item;
-            CheckReentrancy();
-            var session = StartSession();
-            CheckPropertyEnds(session,
-                              () =>
-                              {
-                                  index = Count;
-                                  _list.Add(t);
-
-                                  ListenToChild(t);
-
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
-                              });
-            EndSession(session);
-
-            return index;
-        }
-
-        bool IList.Contains(object item) => ((IList)_list).Contains((T)item);
-
-        int IList.IndexOf(object item) => ((IList)_list).IndexOf((T)item);
-
-        void IList.Insert(int index, object item) => Insert(index, (T)item);
-
-        void IList.Remove(object item) => Remove((T)item);
-
-        public int Count => _list.Count;
-
-        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
-
-        public virtual T this[int index]
-        {
-            get { return _list[index]; }
-            set
-            {
-                var session = StartSession();
-                CheckPropertyEnds(session,
-                                  () =>
-                                  {
-                                      var oldValue = _list[index];
-                                      _list[index] = value;
-
-                                      IgnoreChild(oldValue);
-                                      ListenToChild(value);
-
-                                      OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Replace, value, oldValue, index));
-                                      OnReactToProperty(session, ITEM);
-                                      OnReactToProperty(session, COUNT);
-                                  });
-                EndSession(session);
-            }
-        }
+        bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
+        object ICollection.SyncRoot => ((ICollection)_list).SyncRoot;
 
         public virtual void Add(T item)
         {
@@ -202,26 +117,9 @@ namespace INotify
         }
 
         public bool Contains(T item) => _list.Contains(item);
-
         public virtual void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
-
-        public virtual void Insert(int index, T item)
-        {
-            CheckReentrancy();
-            var session = StartSession();
-            CheckPropertyEnds(session,
-                              () =>
-                              {
-                                  _list.Insert(index, item);
-
-                                  ListenToChild(item);
-
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
-                              });
-            EndSession(session);
-        }
+        public int Count => _list.Count;
+        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
 
         public virtual bool Remove(T item)
         {
@@ -246,6 +144,101 @@ namespace INotify
             return removed;
         }
 
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_list).GetEnumerator();
+
+        int IList.Add(object item)
+        {
+            var index = -1;
+            if (!(item is T))
+                return index;
+
+            var t = (T)item;
+            CheckReentrancy();
+            var session = StartSession();
+            CheckPropertyEnds(session,
+                              () =>
+                              {
+                                  index = Count;
+                                  _list.Add(t);
+
+                                  ListenToChild(t);
+
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToProperty(session, ITEM);
+                                  OnReactToProperty(session, COUNT);
+                              });
+            EndSession(session);
+
+            return index;
+        }
+
+        bool IList.Contains(object item) => ((IList)_list).Contains((T)item);
+        int IList.IndexOf(object item) => ((IList)_list).IndexOf((T)item);
+        void IList.Insert(int index, object item) => Insert(index, (T)item);
+        bool IList.IsFixedSize => ((IList)_list).IsFixedSize;
+        bool IList.IsReadOnly => ((IList)_list).IsReadOnly;
+
+        object IList.this[int index]
+        {
+            get { return this[index]; }
+            set
+            {
+                try
+                {
+                    this[index] = (T)value;
+                }
+                catch (InvalidCastException invalidCastException)
+                {
+                    throw new InvalidCastException($"{value.GetType()} cannot be converted to {typeof(T)}", invalidCastException);
+                }
+            }
+        }
+
+        void IList.Remove(object item) => Remove((T)item);
+        int IList<T>.IndexOf(T item) => ((IList<T>)_list).IndexOf(item);
+
+        public virtual void Insert(int index, T item)
+        {
+            CheckReentrancy();
+            var session = StartSession();
+            CheckPropertyEnds(session,
+                              () =>
+                              {
+                                  _list.Insert(index, item);
+
+                                  ListenToChild(item);
+
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToProperty(session, ITEM);
+                                  OnReactToProperty(session, COUNT);
+                              });
+            EndSession(session);
+        }
+
+        public virtual T this[int index]
+        {
+            get { return _list[index]; }
+            set
+            {
+                var session = StartSession();
+                CheckPropertyEnds(session,
+                                  () =>
+                                  {
+                                      var oldValue = _list[index];
+                                      _list[index] = value;
+
+                                      IgnoreChild(oldValue);
+                                      ListenToChild(value);
+
+                                      OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Replace, value, oldValue, index));
+                                      OnReactToProperty(session, ITEM);
+                                      OnReactToProperty(session, COUNT);
+                                  });
+                EndSession(session);
+            }
+        }
+
         public virtual void RemoveAt(int index)
         {
             CheckReentrancy();
@@ -265,14 +258,7 @@ namespace INotify
             EndSession(session);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_list).GetEnumerator();
-
-        int IList<T>.IndexOf(T item) => ((IList<T>)_list).IndexOf(item);
-
         public event NotifyCollectionChangedEventHandler CollectionChanged;
-        public event ReactToCollectionEventHandler ReactToCollection;
 
         void IReactToCollection.OnCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
@@ -289,6 +275,7 @@ namespace INotify
                 handler(this, args);
         }
 
+        public event ReactToCollectionEventHandler ReactToCollection;
         public event ReactToCollectionItemPropertyEventHandler ReactToCollectionItemProperty;
 
         public virtual void AddRange(IEnumerable<T> collection)
@@ -307,49 +294,27 @@ namespace INotify
         }
 
         public ReadOnlyCollection<T> AsReadOnly() => _list.AsReadOnly();
-
         public int BinarySearch(T item) => _list.BinarySearch(item);
-
         public int BinarySearch(T item, IComparer<T> comparer) => _list.BinarySearch(item, comparer);
-
         public int BinarySearch(int index, int count, T item, IComparer<T> comparer) => _list.BinarySearch(index, count, item, comparer);
-
         public NotifyingList<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => new NotifyingList<TOutput>(_list.ConvertAll(converter));
-
         public virtual void CopyTo(T[] array) => _list.CopyTo(array);
-
         public virtual void CopyTo(int index, T[] array, int arrayIndex, int count) => _list.CopyTo(index, array, arrayIndex, count);
-
         public bool Exists(Predicate<T> match) => _list.Exists(match);
-
         public T Find(Predicate<T> match) => _list.Find(match);
-
         public NotifyingList<T> FindAll(Predicate<T> match) => new NotifyingList<T>(_list.FindAll(match));
-
         public int FindIndex(Predicate<T> match) => _list.FindIndex(match);
-
         public int FindIndex(int startIndex, Predicate<T> match) => _list.FindIndex(startIndex, match);
-
         public int FindIndex(int startIndex, int count, Predicate<T> match) => _list.FindIndex(startIndex, count, match);
-
         public T FindLast(Predicate<T> match) => _list.FindLast(match);
-
         public int FindLastIndex(Predicate<T> match) => _list.FindLastIndex(match);
-
         public int FindLastIndex(int startIndex, Predicate<T> match) => _list.FindLastIndex(startIndex, match);
-
         public int FindLastIndex(int startIndex, int count, Predicate<T> match) => _list.FindLastIndex(startIndex, count, match);
-
         public void ForEach(Action<T> action) => _list.ForEach(action);
-
         public List<T>.Enumerator GetEnumerator() => _list.GetEnumerator();
-
         public NotifyingList<T> GetRange(int index, int count) => new NotifyingList<T>(_list.GetRange(index, count));
-
         public int IndexOf(T item) => _list.IndexOf(item);
-
         public int IndexOf(T item, int index) => _list.IndexOf(item, index);
-
         public int IndexOf(T item, int index, int count) => _list.IndexOf(item, index, count);
 
         public virtual void InsertRange(int index, IEnumerable<T> collection)
@@ -373,9 +338,7 @@ namespace INotify
         }
 
         public int LastIndexOf(T item) => _list.LastIndexOf(item);
-
         public int LastIndexOf(T item, int index) => _list.LastIndexOf(item, index);
-
         public int LastIndexOf(T item, int index, int count) => _list.LastIndexOf(item, index, count);
 
         public virtual int RemoveAll(Predicate<T> match)
@@ -521,9 +484,7 @@ namespace INotify
         }
 
         public T[] ToArray() => _list.ToArray();
-
         public void TrimExcess() => _list.TrimExcess();
-
         public bool TrueForAll(Predicate<T> match) => _list.TrueForAll(match);
 
         protected internal override void OnReactToProperty(long session, string propertyName)
@@ -592,9 +553,7 @@ namespace INotify
         }
 
         protected new PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
-
         protected PropertyDependencyDefinitions CollectionChange() => _localCollectionDependencies;
-
         protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TItem, TProp>(Expression<Func<TItem, TProp>> property) => _localCollectionItemsDependencies.Get(property.GetName());
 
         private void CheckPropertyEnds(long session, Action action)
@@ -842,7 +801,6 @@ namespace INotify
         private class SimpleMonitor : IDisposable
         {
             private int _busyCount;
-
             public bool Busy => _busyCount > 0;
 
             public void Dispose()

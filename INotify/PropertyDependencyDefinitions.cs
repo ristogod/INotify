@@ -10,7 +10,6 @@ namespace INotify
     {
         internal readonly List<Action> Executions = new List<Action>();
         internal readonly List<Property> List = new List<Property>();
-
         internal PropertyDependencyDefinitions Affects<TProp>(Expression<Func<TProp>> property, Func<bool> condition = null) => Affects(property.GetName(), condition);
 
         internal PropertyDependencyDefinitions Affects(string property, Func<bool> condition = null)
@@ -30,6 +29,18 @@ namespace INotify
         public PropertyDependencyDefinitions Execute(Action action)
         {
             Executions.Add(action);
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Raise(RelayCommand command)
+        {
+            Executions.Add(command.RaiseCanExecuteChanged);
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Raise<TParam>(RelayCommand<TParam> command)
+        {
+            Executions.Add(command.RaiseCanExecuteChanged);
             return this;
         }
 
