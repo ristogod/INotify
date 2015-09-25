@@ -28,25 +28,33 @@ namespace INotify
 
         public PropertyDependencyDefinitions Execute(Action action)
         {
-            Executions.Add(action);
+            if(action != null)
+                Executions.Add(action);
+
             return this;
         }
 
         public PropertyDependencyDefinitions Execute(RelayCommand command)
         {
-            Executions.Add(command.Execute);
+            if (command != null)
+                Executions.Add(command.Execute);
+
             return this;
         }
 
         public PropertyDependencyDefinitions Raise(RelayCommand command)
         {
-            Executions.Add(command.RaiseCanExecuteChanged);
+            if (command != null)
+                Executions.Add(command.RaiseCanExecuteChanged);
+
             return this;
         }
 
         public PropertyDependencyDefinitions Raise<TParam>(RelayCommand<TParam> command)
         {
-            Executions.Add(command.RaiseCanExecuteChanged);
+            if (command != null)
+                Executions.Add(command.RaiseCanExecuteChanged);
+
             return this;
         }
 
