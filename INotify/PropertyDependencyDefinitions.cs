@@ -32,6 +32,12 @@ namespace INotify
             return this;
         }
 
+        public PropertyDependencyDefinitions Execute(RelayCommand command)
+        {
+            Executions.Add(command.Execute);
+            return this;
+        }
+
         public PropertyDependencyDefinitions Raise(RelayCommand command)
         {
             Executions.Add(command.RaiseCanExecuteChanged);

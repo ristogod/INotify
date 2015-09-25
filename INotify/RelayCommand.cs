@@ -86,7 +86,7 @@ namespace INotify
         }
 
         [DebuggerStepThrough]
-        public bool CanExecute(object parameter) => _canExecute?.Invoke() ?? true;
+        public bool CanExecute(object parameter = null) => _canExecute?.Invoke() ?? true;
 
         public event EventHandler CanExecuteChanged
         {
@@ -102,6 +102,7 @@ namespace INotify
             }
         }
 
+        public void Execute() => _execute();
         public void Execute(object parameter) => _execute();
         public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
