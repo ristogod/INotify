@@ -42,6 +42,14 @@ namespace INotify
             return this;
         }
 
+        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command)
+        {
+            if (command != null)
+                Executions.Add(command.Execute);
+
+            return this;
+        }
+
         public PropertyDependencyDefinitions Raise(RelayCommand command)
         {
             if (command != null)

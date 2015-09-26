@@ -2,6 +2,7 @@
 {
     public interface INotifyEnabling
     {
-        bool IsNotificationsEnabled { get; set; }
+        void EnableNotifications();
+        void DisableNotifications();
     }
 }

@@ -36,14 +36,12 @@ namespace INotify
         {
             Construct();
             _list = new List<T>();
-            Initialize();
         }
 
         protected NotifyingCollection(int capacity)
         {
             Construct();
             _list = new List<T>(capacity);
-            Initialize();
         }
 
         protected NotifyingCollection(IEnumerable<T> collection)
@@ -51,7 +49,6 @@ namespace INotify
             Construct();
             _list = new List<T>(collection);
             _list.ForEach(ListenToChild);
-            Initialize();
         }
 
         [XmlIgnore]
@@ -716,9 +713,9 @@ namespace INotify
             var notifyEnabling = item as INotifyEnabling;
             if (notifyEnabling != null)
             {
-                notifyEnabling.IsNotificationsEnabled = false;
+                notifyEnabling.DisableNotifications();
                 action(item);
-                notifyEnabling.IsNotificationsEnabled = true;
+                notifyEnabling.EnableNotifications();
             }
             else
                 action(item);

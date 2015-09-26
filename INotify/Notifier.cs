@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Xml.Serialization;
 using INotify.Dictionaries;
 using INotify.Extensions;
 
@@ -20,29 +19,28 @@ namespace INotify
         internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new PropertyDependenciesDictionary();
         internal readonly ReferencePropertyDependenciesDictionary ReferencedCollectionItemPropertyDependencies = new ReferencePropertyDependenciesDictionary();
         internal readonly ReferencePropertyDependenciesDictionary ReferencedPropertyDependencies = new ReferencePropertyDependenciesDictionary();
+        internal protected bool IsNotificationsEnabled = true;
         private readonly PropertyReferenceDictionary<IReactToCollectionItemProperty> _collectionItemsReferenceMap = new PropertyReferenceDictionary<IReactToCollectionItemProperty>();
         private readonly PropertyReferenceDictionary<INotifyCollectionChanged> _collectionReferenceMap = new PropertyReferenceDictionary<INotifyCollectionChanged>();
         private readonly ConcurrentDictionary<string, object> _dependentPropertyValuesDictionary = new ConcurrentDictionary<string, object>();
         private readonly PropertyReferenceDictionary<INotifyPropertyChanged> _propertyReferenceMap = new PropertyReferenceDictionary<INotifyPropertyChanged>();
         private readonly ConcurrentDictionary<string, object> _propertyValuesDictionary = new ConcurrentDictionary<string, object>();
-        private bool _isNotificationsEnabled;
 
         protected Notifier()
         {
             ReactToProperty += RespondToPropertyReactions;
-            IsNotificationsEnabled = true;
-            Initialize();
         }
 
-        [XmlIgnore]
-        public bool IsNotificationsEnabled
+        public void DisableNotifications()
         {
-            get { return _isNotificationsEnabled; }
-            set
-            {
-                _isNotificationsEnabled = value;
-                _dependentPropertyValuesDictionary.Clear();
-            }
+            IsNotificationsEnabled = false;
+            _dependentPropertyValuesDictionary.Clear();
+        }
+
+        public void EnableNotifications()
+        {
+            IsNotificationsEnabled = true;
+            _dependentPropertyValuesDictionary.Clear();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -115,6 +113,7 @@ namespace INotify
             if (!dependencies.TryGetValue(propertyName, out properties))
                 return;
 
+            //TODO: move executions to queue and do after batch of property raises
             HandleExecutions(properties);
             RaiseDependencies(session, properties);
         }
@@ -218,8 +217,6 @@ namespace INotify
                                                   });
         }
 
-        protected void Initialize() => ConfigureProperties();
-        protected abstract void ConfigureProperties();
         protected PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
 
         protected bool SetValue<TProp>(TProp value, Expression<Func<TProp>> property, bool notifyWhenUnchanged = false)
@@ -255,15 +252,10 @@ namespace INotify
             return changed;
         }
 
-        private void HandleExecutions(PropertyDependencyDefinitions propertyExecutions)
+        private static void HandleExecutions(PropertyDependencyDefinitions propertyExecutions)
         {
             foreach (var action in propertyExecutions.Executions)
-            {
-                var isNotifyEnabled = IsNotificationsEnabled;
-                IsNotificationsEnabled = false;
                 action();
-                IsNotificationsEnabled = isNotifyEnabled;
-            }
         }
 
         private void Ignore<TProp>(TProp value, string propertyName)

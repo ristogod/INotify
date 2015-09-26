@@ -52,6 +52,7 @@ namespace INotify
             }
         }
 
+        public void Execute() => _execute(default(T));
         public void Execute(object parameter) => _execute((T)parameter);
         public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }

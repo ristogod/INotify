@@ -6,21 +6,16 @@ namespace INotify
     {
         public NotifyingList()
         {
-            Initialize();
         }
 
         public NotifyingList(int capacity)
             : base(capacity)
         {
-            Initialize();
         }
 
         public NotifyingList(IEnumerable<T> collection)
             : base(collection)
         {
-            Initialize();
         }
-
-        protected override void ConfigureProperties() {}
     }
 }
