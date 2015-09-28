@@ -15,11 +15,11 @@ namespace INotify
         internal static readonly PropertiesSessionDictionary PropertySessions = new PropertiesSessionDictionary();
         private static long _session;
         private static readonly object Locker = new object();
+        protected internal bool IsNotificationsEnabled = true;
         internal readonly PropertyDependenciesDictionary LocalPropertyDependencies = new PropertyDependenciesDictionary();
         internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new PropertyDependenciesDictionary();
         internal readonly ReferencePropertyDependenciesDictionary ReferencedCollectionItemPropertyDependencies = new ReferencePropertyDependenciesDictionary();
         internal readonly ReferencePropertyDependenciesDictionary ReferencedPropertyDependencies = new ReferencePropertyDependenciesDictionary();
-        internal protected bool IsNotificationsEnabled = true;
         private readonly PropertyReferenceDictionary<IReactToCollectionItemProperty> _collectionItemsReferenceMap = new PropertyReferenceDictionary<IReactToCollectionItemProperty>();
         private readonly PropertyReferenceDictionary<INotifyCollectionChanged> _collectionReferenceMap = new PropertyReferenceDictionary<INotifyCollectionChanged>();
         private readonly ConcurrentDictionary<string, object> _dependentPropertyValuesDictionary = new ConcurrentDictionary<string, object>();
