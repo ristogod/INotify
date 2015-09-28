@@ -164,18 +164,18 @@ namespace INotify
         protected PropertyDependencyDefinitions PropertyChangeFor<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
             => ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
 
-        protected TProp GetValue<TProp>(Expression<Func<TProp>> property, Func<TProp> function)
+        protected TProp GetValue<TProp>(Expression<Func<TProp>> property, Func<TProp> computed)
         {
             var propertyName = property.GetName();
 
             if (!IsNotificationsEnabled)
-                return function();
+                return computed();
 
             object value;
             if (_dependentPropertyValuesDictionary.TryGetValue(propertyName, out value))
                 return (TProp)value;
 
-            var v = function();
+            var v = computed();
 
             return (TProp)_dependentPropertyValuesDictionary.AddOrUpdate(propertyName,
                                                                          key =>
