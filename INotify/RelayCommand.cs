@@ -36,7 +36,7 @@ namespace INotify
         }
 
         [DebuggerStepThrough]
-        public bool CanExecute(object parameter) => _canExecute?.Invoke((T)parameter) ?? true;
+        public bool CanExecute(object parameter = null) => _canExecute?.Invoke((T)parameter) ?? true;
 
         public event EventHandler CanExecuteChanged
         {

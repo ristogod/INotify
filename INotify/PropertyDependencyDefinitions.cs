@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Windows.Input;
 using INotify.Extensions;
 
 namespace INotify
@@ -28,8 +29,30 @@ namespace INotify
 
         public PropertyDependencyDefinitions Execute(Action action)
         {
-            if(action != null)
+            if (action != null)
                 Executions.Add(action);
+
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Execute(ICommand command)
+        {
+            if (command != null)
+                Executions.Add(() => command.Execute(null));
+
+            return this;
+        }
+
+        public PropertyDependencyDefinitions IfCanExecute(ICommand command)
+        {
+            if (command != null)
+            {
+                Executions.Add(() =>
+                               {
+                                   if (command.CanExecute(null))
+                                       command.Execute(null);
+                               });
+            }
 
             return this;
         }
@@ -42,10 +65,38 @@ namespace INotify
             return this;
         }
 
+        public PropertyDependencyDefinitions IfCanExecute(RelayCommand command)
+        {
+            if (command != null)
+            {
+                Executions.Add(() =>
+                               {
+                                   if (command.CanExecute())
+                                       command.Execute();
+                               });
+            }
+
+            return this;
+        }
+
         public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command)
         {
             if (command != null)
                 Executions.Add(command.Execute);
+
+            return this;
+        }
+
+        public PropertyDependencyDefinitions IfCanExecute<TParam>(RelayCommand<TParam> command)
+        {
+            if (command != null)
+            {
+                Executions.Add(() =>
+                               {
+                                   if (command.CanExecute())
+                                       command.Execute();
+                               });
+            }
 
             return this;
         }
