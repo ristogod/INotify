@@ -11,7 +11,7 @@
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>More refactoring. Got rid of both the initialize and ConfigureProperties methods. Instead all the configuring should be done in the constructors now. Got rid of logic that caused Notifier to disable notifications when performing executions.</releaseNotes>
+    <releaseNotes>Minor command additions</releaseNotes>
     <copyright>Copyright Nathan.Risto 2015</copyright>
     <tags>Wpf INotifyPropertyChanged INotifyCollectionChanged</tags>
   </metadata>
