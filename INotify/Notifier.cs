@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using INotify.Dictionaries;
@@ -23,12 +25,14 @@ namespace INotify
         private readonly PropertyReferenceDictionary<IReactToCollectionItemProperty> _collectionItemsReferenceMap = new PropertyReferenceDictionary<IReactToCollectionItemProperty>();
         private readonly PropertyReferenceDictionary<INotifyCollectionChanged> _collectionReferenceMap = new PropertyReferenceDictionary<INotifyCollectionChanged>();
         private readonly ConcurrentDictionary<string, object> _dependentPropertyValuesDictionary = new ConcurrentDictionary<string, object>();
+        private readonly List<PropertyChangedEventHandler> _propertyChangedSubscribers = new List<PropertyChangedEventHandler>();
         private readonly PropertyReferenceDictionary<INotifyPropertyChanged> _propertyReferenceMap = new PropertyReferenceDictionary<INotifyPropertyChanged>();
         private readonly ConcurrentDictionary<string, object> _propertyValuesDictionary = new ConcurrentDictionary<string, object>();
+        private readonly List<ReactToPropertyEventHandler> _reactToPropertySubscribers = new List<ReactToPropertyEventHandler>();
 
         protected Notifier()
         {
-            ReactToProperty += RespondToPropertyReactions;
+            _reactToProperty += RespondToPropertyReactions;
         }
 
         public void DisableNotifications()
@@ -43,13 +47,47 @@ namespace INotify
             _dependentPropertyValuesDictionary.Clear();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event ReactToPropertyEventHandler ReactToProperty;
-
-        public static string GetName<TProp>(Expression<Func<TProp>> property)
+        public event PropertyChangedEventHandler PropertyChanged
         {
-            return property.GetName();
+            add
+            {
+                if (_propertyChangedSubscribers.Contains(value))
+                    return;
+
+                _propertyChanged += value;
+                _propertyChangedSubscribers.Add(value);
+            }
+            remove
+            {
+                _propertyChanged -= value;
+                _propertyChangedSubscribers.Remove(value);
+            }
         }
+
+        public event ReactToPropertyEventHandler ReactToProperty
+        {
+            add
+            {
+                if (_reactToPropertySubscribers.Contains(value))
+                    return;
+
+                _reactToProperty += value;
+                _reactToPropertySubscribers.Add(value);
+            }
+            remove
+            {
+                _reactToProperty -= value;
+                _reactToPropertySubscribers.Remove(value);
+            }
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private event PropertyChangedEventHandler _propertyChanged;
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private event ReactToPropertyEventHandler _reactToProperty;
+
+        public static string GetName<TProp>(Expression<Func<TProp>> property) => property.GetName();
 
         internal static void EndSession(long session)
         {
@@ -87,11 +125,11 @@ namespace INotify
             }
         }
 
-        internal void OnPropertyChanged(PropertyChangedEventArgs args) => PropertyChanged?.Invoke(this, args);
+        internal void OnPropertyChanged(PropertyChangedEventArgs args) => _propertyChanged?.Invoke(this, args);
 
         protected internal virtual void OnReactToProperty(long session, string propertyName)
         {
-            var handler = ReactToProperty;
+            var handler = _reactToProperty;
 
             if (handler == null || string.IsNullOrWhiteSpace(propertyName))
                 return;
@@ -309,15 +347,13 @@ namespace INotify
         private void IgnorePropertyReactionsOn(string referenceName, Notifier ignored)
         {
             if (ignored != null)
-                ignored.ReactToProperty -= RespondToPropertyReactions;
+                ignored._reactToProperty -= RespondToPropertyReactions;
 
             _propertyReferenceMap.Remove(referenceName);
         }
 
         private void ListenForCollectionChangesOn(string referenceName, INotifyCollectionChanged listened)
         {
-            IgnoreCollectionChangesOn(referenceName, listened);
-
             if (listened == null)
                 return;
 
@@ -327,8 +363,6 @@ namespace INotify
 
         private void ListenForCollectionItemPropertyReactionsOn(string referencedName, IReactToCollectionItemProperty listened)
         {
-            IgnoreCollectionItemPropertyReactionsOn(referencedName, listened);
-
             if (listened == null)
                 return;
 
@@ -338,8 +372,6 @@ namespace INotify
 
         private void ListenForCollectionReactionsOn(string referenceName, IReactToCollection listened)
         {
-            IgnoreCollectionReactionsOn(referenceName, listened);
-
             if (listened == null)
                 return;
 
@@ -349,8 +381,6 @@ namespace INotify
 
         private void ListenForPropertyChangesOn(string referenceName, INotifyPropertyChanged listened)
         {
-            IgnorePropertyChangesOn(referenceName, listened);
-
             if (listened == null)
                 return;
 
@@ -360,12 +390,10 @@ namespace INotify
 
         private void ListenForPropertyReactionsOn(string referenceName, Notifier listened)
         {
-            IgnorePropertyReactionsOn(referenceName, listened);
-
             if (listened == null)
                 return;
 
-            listened.ReactToProperty += RespondToPropertyReactions;
+            listened._reactToProperty += RespondToPropertyReactions;
             _propertyReferenceMap.Add(referenceName, listened);
         }
 

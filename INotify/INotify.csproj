@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="INotify.nuspec" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="nuget.exe" />

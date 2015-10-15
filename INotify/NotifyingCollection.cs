@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
@@ -23,9 +24,12 @@ namespace INotify
         private const string FIRSTITEM = "FirstItem";
         private const string ITEM = "Item[]";
         private const string LASTITEM = "LastItem";
+        private readonly List<NotifyCollectionChangedEventHandler> _collectionChangedSubscribers = new List<NotifyCollectionChangedEventHandler>();
         private readonly List<T> _list;
         private readonly PropertyDependencyDefinitions _localCollectionDependencies = new PropertyDependencyDefinitions();
         private readonly PropertyDependenciesDictionary _localCollectionItemsDependencies = new PropertyDependenciesDictionary();
+        private readonly List<ReactToCollectionItemPropertyEventHandler> _reactToCollectionItemPropertySubscribers = new List<ReactToCollectionItemPropertyEventHandler>();
+        private readonly List<ReactToCollectionEventHandler> _reactToCollectionSubscribers = new List<ReactToCollectionEventHandler>();
         private readonly ConcurrentQueue<ReactToPropertyEventArgs> _suspendedPropertyReactions = new ConcurrentQueue<ReactToPropertyEventArgs>();
         private bool _isReactionsSuspended;
         private SimpleMonitor _monitor;
@@ -116,7 +120,6 @@ namespace INotify
         public bool Contains(T item) => _list.Contains(item);
         public virtual void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
         public int Count => _list.Count;
-        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
 
         public virtual bool Remove(T item)
         {
@@ -141,6 +144,7 @@ namespace INotify
             return removed;
         }
 
+        bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_list).GetEnumerator();
 
@@ -193,7 +197,6 @@ namespace INotify
         }
 
         void IList.Remove(object item) => Remove((T)item);
-        int IList<T>.IndexOf(T item) => ((IList<T>)_list).IndexOf(item);
 
         public virtual void Insert(int index, T item)
         {
@@ -255,11 +258,45 @@ namespace INotify
             EndSession(session);
         }
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
+        int IList<T>.IndexOf(T item) => ((IList<T>)_list).IndexOf(item);
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add
+            {
+                if (_collectionChangedSubscribers.Contains(value))
+                    return;
+
+                _collectionChanged += value;
+                _collectionChangedSubscribers.Add(value);
+            }
+            remove
+            {
+                _collectionChanged -= value;
+                _collectionChangedSubscribers.Remove(value);
+            }
+        }
+
+        public event ReactToCollectionEventHandler ReactToCollection
+        {
+            add
+            {
+                if (_reactToCollectionSubscribers.Contains(value))
+                    return;
+
+                _reactToCollection += value;
+                _reactToCollectionSubscribers.Add(value);
+            }
+            remove
+            {
+                _reactToCollection -= value;
+                _reactToCollectionSubscribers.Remove(value);
+            }
+        }
 
         void IReactToCollection.OnCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            var handler = CollectionChanged;
+            var handler = _collectionChanged;
 
             if (handler == null || args == null)
                 return;
@@ -272,8 +309,31 @@ namespace INotify
                 handler(this, args);
         }
 
-        public event ReactToCollectionEventHandler ReactToCollection;
-        public event ReactToCollectionItemPropertyEventHandler ReactToCollectionItemProperty;
+        public event ReactToCollectionItemPropertyEventHandler ReactToCollectionItemProperty
+        {
+            add
+            {
+                if (_reactToCollectionItemPropertySubscribers.Contains(value))
+                    return;
+
+                _reactToCollectionItemProperty += value;
+                _reactToCollectionItemPropertySubscribers.Add(value);
+            }
+            remove
+            {
+                _reactToCollectionItemProperty -= value;
+                _reactToCollectionItemPropertySubscribers.Remove(value);
+            }
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private event NotifyCollectionChangedEventHandler _collectionChanged;
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private event ReactToCollectionItemPropertyEventHandler _reactToCollectionItemProperty;
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private event ReactToCollectionEventHandler _reactToCollection;
 
         public virtual void AddRange(IEnumerable<T> collection)
         {
@@ -516,7 +576,7 @@ namespace INotify
 
         protected void CheckReentrancy()
         {
-            if (!_monitor.Busy || CollectionChanged == null || CollectionChanged.GetInvocationList().Length <= 1)
+            if (!_monitor.Busy || _collectionChanged == null || _collectionChanged.GetInvocationList().Length <= 1)
                 return;
 
             throw new InvalidOperationException("Collection Reentrancy Not Allowed");
@@ -601,8 +661,8 @@ namespace INotify
             PropertyOf(() => LastItem).DependsOnProperty(() => Count);
 
             _monitor = new SimpleMonitor();
-            ReactToCollection += RespondToCollectionReactions;
-            ReactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
+            _reactToCollection += RespondToCollectionReactions;
+            _reactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
         }
 
         private static void DequeueSuspendedNotifications<TQ>(ConcurrentQueue<TQ> queue, Action<TQ> notifier)
@@ -658,16 +718,12 @@ namespace INotify
 
         private void ListenForCollectionItemPropertyChangesOn(INotifyPropertyChanged listened)
         {
-            IgnoreCollectionItemPropertyChangesOn(listened);
-
             if (listened != null)
                 listened.PropertyChanged += RespondToChildPropertyReactions;
         }
 
         private void ListenForCollectionItemPropertyReactionsOn(Notifier listened)
         {
-            IgnoreCollectionItemPropertyReactionsOn(listened);
-
             if (listened != null)
                 listened.ReactToProperty += RespondToChildPropertyReactions;
         }
@@ -683,7 +739,7 @@ namespace INotify
         private void OnCollectionItemPropertyReaction(ReactToCollectionItemPropertyEventArgs args)
         {
             if (args != null && IsNotificationsEnabled)
-                ReactToCollectionItemProperty?.Invoke(this, args);
+                _reactToCollectionItemProperty?.Invoke(this, args);
         }
 
         private void OnReactToCollection(ReactToCollectionEventArgs args)
@@ -702,7 +758,7 @@ namespace INotify
 
                 var disposable = BlockReentrancy();
                 using (disposable)
-                    ReactToCollection?.Invoke(this, args);
+                    _reactToCollection?.Invoke(this, args);
             }
         }
 

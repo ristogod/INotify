@@ -11,7 +11,9 @@
     <!--<iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Minor command additions</releaseNotes>
+    <releaseNotes>
+      Updated all of the events for Notifier and NotifyingCollection&lt;T&gt; to pattern off of Miguel Castro's suggestion on how to implement events such that they cannot be subscribed to multiple times by the same delegate.
+    </releaseNotes>
     <copyright>Copyright Nathan.Risto 2015</copyright>
     <tags>Wpf INotifyPropertyChanged INotifyCollectionChanged</tags>
   </metadata>
