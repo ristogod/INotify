@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Updated all of the events for Notifier and NotifyingCollection&lt;T&gt; to pattern off of Miguel Castro's suggestion on how to implement events such that they cannot be subscribed to multiple times by the same delegate.
+      Fixed incorrect dependency.
     </releaseNotes>
     <copyright>Copyright Nathan.Risto 2015</copyright>
     <tags>Wpf INotifyPropertyChanged INotifyCollectionChanged</tags>
