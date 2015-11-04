@@ -1,4 +1,6 @@
 ﻿using System.Collections.Concurrent;
+using INotify.Contracts;
+using INotify.EventArguments;
 
 namespace INotify.Dictionaries
 {

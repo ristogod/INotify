@@ -50,24 +50,23 @@
     <Compile Include="Dictionaries\PropertyReferenceDictionary.cs" />
     <Compile Include="Dictionaries\ReactToPropertyDictionary.cs" />
     <Compile Include="Dictionaries\ReferencePropertyDependenciesDictionary.cs" />
-    <Compile Include="Extensions\ConcurrentDictionaryExtensions.cs" />
     <Compile Include="Extensions\DictionaryExtensions.cs" />
     <Compile Include="Extensions\ExpressionExtensions.cs" />
-    <Compile Include="INotifyEnabling.cs" />
-    <Compile Include="IReactToCollection.cs" />
-    <Compile Include="IReactToCollectionItemProperty.cs" />
+    <Compile Include="Contracts\INotifyEnabling.cs" />
+    <Compile Include="Contracts\IReactToCollection.cs" />
+    <Compile Include="Contracts\IReactToCollectionItemProperty.cs" />
     <Compile Include="Notifier.cs" />
     <Compile Include="NotifyingCollection.cs" />
     <Compile Include="NotifyingList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Property.cs" />
-    <Compile Include="PropertyDependencyDefinitions.cs" />
-    <Compile Include="ReactToCollectionEventArgs.cs" />
-    <Compile Include="ReactToCollectionEventHandler.cs" />
-    <Compile Include="ReactToCollectionItemPropertyEventArgs.cs" />
-    <Compile Include="ReactToCollectionItemPropertyEventHandler.cs" />
-    <Compile Include="ReactToPropertyEventArgs.cs" />
-    <Compile Include="ReactToPropertyEventHandler.cs" />
+    <Compile Include="Internal\Property.cs" />
+    <Compile Include="Internal\PropertyDependencyDefinitions.cs" />
+    <Compile Include="EventArguments\ReactToCollectionEventArgs.cs" />
+    <Compile Include="Delegates\ReactToCollectionEventHandler.cs" />
+    <Compile Include="EventArguments\ReactToCollectionItemPropertyEventArgs.cs" />
+    <Compile Include="Delegates\ReactToCollectionItemPropertyEventHandler.cs" />
+    <Compile Include="EventArguments\ReactToPropertyEventArgs.cs" />
+    <Compile Include="Delegates\ReactToPropertyEventHandler.cs" />
     <Compile Include="RelayCommand.cs" />
   </ItemGroup>
   <ItemGroup>

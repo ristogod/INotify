@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Specialized;
 
-namespace INotify
+namespace INotify.EventArguments
 {
     public sealed class ReactToCollectionEventArgs : NotifyCollectionChangedEventArgs
     {

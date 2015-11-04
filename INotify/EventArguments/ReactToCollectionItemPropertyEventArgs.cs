@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace INotify
+namespace INotify.EventArguments
 {
     public class ReactToCollectionItemPropertyEventArgs : ReactToPropertyEventArgs
     {

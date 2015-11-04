@@ -10,8 +10,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Serialization;
+using INotify.Contracts;
+using INotify.Delegates;
 using INotify.Dictionaries;
+using INotify.EventArguments;
 using INotify.Extensions;
+using INotify.Internal;
+using static System.Collections.Specialized.NotifyCollectionChangedAction;
 
 namespace INotify
 {
@@ -110,7 +115,7 @@ namespace INotify
                                   foreach (var value in oldValues)
                                       IgnoreChild(value);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -231,7 +236,7 @@ namespace INotify
                                       IgnoreChild(oldValue);
                                       ListenToChild(value);
 
-                                      OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Replace, value, oldValue, index));
+                                      OnReactToCollection(new ReactToCollectionEventArgs(session, Replace, value, oldValue, index));
                                       OnReactToProperty(session, ITEM);
                                       OnReactToProperty(session, COUNT);
                                   });
@@ -341,7 +346,7 @@ namespace INotify
                 throw new ArgumentNullException(nameof(collection));
 
             var session = StartSession();
-            GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset),
+            GroupNotifications(new ReactToCollectionEventArgs(session, Reset),
                                () =>
                                {
                                    foreach (var item in collection)
@@ -450,7 +455,7 @@ namespace INotify
                               {
                                   _list.Reverse();
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -474,7 +479,7 @@ namespace INotify
                               {
                                   _list.Reverse(index, count);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -489,7 +494,7 @@ namespace INotify
                               {
                                   _list.Sort();
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -504,7 +509,7 @@ namespace INotify
                               {
                                   _list.Sort(comparison);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -519,7 +524,7 @@ namespace INotify
                               {
                                   _list.Sort(comparer);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -534,7 +539,7 @@ namespace INotify
                               {
                                   _list.Sort(index, count, comparer);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Reset));
+                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -797,41 +802,44 @@ namespace INotify
                 _dependentPropertyName = dependentPropertyName;
             }
 
-            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property, Func<bool> condition = null)
+            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property)
             {
-                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property, Func<bool> condition = null) where TRef : INotifyPropertyChanged
-                where TInst : TRef
+            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
             {
-                _notifyingCollection.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property, Func<bool> condition = null) where TColl : INotifyCollectionChanged
+            public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged
             {
-                _notifyingCollection.ReferencedCollectionDependencies.Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property, Func<bool> condition = null)
-                where TColl : IReactToCollectionItemProperty
+            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             {
-                _notifyingCollection.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnThisCollection(Func<bool> condition = null)
+            public PropertyDependencyMapper DependsOnThisCollection()
             {
-                _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName, condition);
+                _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnThisCollectionItemProperty<TItem, TProp>(Expression<Func<TItem, TProp>> property, Func<bool> condition = null)
+            public PropertyDependencyMapper DependsOnThisCollectionItemProperty<TItem, TProp>(Expression<Func<TItem, TProp>> property)
             {
-                _notifyingCollection._localCollectionItemsDependencies.Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName);
+                _notifyingCollection._localCollectionItemsDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 

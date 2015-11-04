@@ -1,4 +1,6 @@
-﻿namespace INotify
+﻿using INotify.Delegates;
+
+namespace INotify.Contracts
 {
     public interface IReactToCollectionItemProperty
     {

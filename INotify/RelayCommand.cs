@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics;
 using System.Windows.Input;
+using static System.Windows.Input.CommandManager;
 
 namespace INotify
 {
@@ -43,18 +44,18 @@ namespace INotify
             add
             {
                 if (_canExecute != null)
-                    CommandManager.RequerySuggested += value;
+                    RequerySuggested += value;
             }
             remove
             {
                 if (_canExecute != null)
-                    CommandManager.RequerySuggested -= value;
+                    RequerySuggested -= value;
             }
         }
 
         public void Execute() => _execute(default(T));
         public void Execute(object parameter) => _execute((T)parameter);
-        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
+        public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
     }
 
     /// <summary>
@@ -94,17 +95,17 @@ namespace INotify
             add
             {
                 if (_canExecute != null)
-                    CommandManager.RequerySuggested += value;
+                    RequerySuggested += value;
             }
             remove
             {
                 if (_canExecute != null)
-                    CommandManager.RequerySuggested -= value;
+                    RequerySuggested -= value;
             }
         }
 
         public void Execute() => _execute();
         public void Execute(object parameter) => _execute();
-        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
+        public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
     }
 }

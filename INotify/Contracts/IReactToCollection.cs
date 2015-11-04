@@ -1,6 +1,7 @@
 ﻿using System.Collections.Specialized;
+using INotify.Delegates;
 
-namespace INotify
+namespace INotify.Contracts
 {
     public interface IReactToCollection : INotifyCollectionChanged
     {

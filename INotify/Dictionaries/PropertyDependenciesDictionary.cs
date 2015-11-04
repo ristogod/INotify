@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using INotify.Internal;
 
 namespace INotify.Dictionaries
 {

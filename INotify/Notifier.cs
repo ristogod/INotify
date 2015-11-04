@@ -6,8 +6,12 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
+using INotify.Contracts;
+using INotify.Delegates;
 using INotify.Dictionaries;
+using INotify.EventArguments;
 using INotify.Extensions;
+using INotify.Internal;
 
 namespace INotify
 {
@@ -157,11 +161,7 @@ namespace INotify
             RaiseDependencies(session, properties);
         }
 
-        protected internal void RaiseDependencies(long session, PropertyDependencyDefinitions dependencies)
-        {
-            foreach (var property in dependencies.List.Where(property => property.CanRaise))
-                OnReactToProperty(session, property.Name);
-        }
+        protected internal void RaiseDependencies(long session, PropertyDependencyDefinitions dependencies) => dependencies.List.ForEach(property => OnReactToProperty(session, property.Name));
 
         protected internal virtual void RespondToCollectionItemPropertyReactions(object sender, ReactToCollectionItemPropertyEventArgs args)
         {
@@ -480,29 +480,31 @@ namespace INotify
                 _dependentPropertyName = dependentPropertyName;
             }
 
-            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property, Func<bool> condition = null)
+            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property)
             {
-                _notifier.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifier.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property, Func<bool> condition = null) where TRef : INotifyPropertyChanged
-                where TInst : TRef
+            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
             {
-                _notifier.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifier.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifier.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property, Func<bool> condition = null) where TColl : INotifyCollectionChanged
+            public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged
             {
-                _notifier.ReferencedCollectionDependencies.Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifier.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifier.ReferencedCollectionDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property, Func<bool> condition = null)
-                where TColl : IReactToCollectionItemProperty
+            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             {
-                _notifier.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName, condition);
+                _notifier.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifier.ReferencedCollectionDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifier.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
                 return this;
             }
 

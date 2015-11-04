@@ -12,9 +12,11 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Fixed incorrect dependency.
+      Circular property definitions no longer cause infinite event invocation loops. 
+      
+      The optional "condition" parameter is no longer needed and has been removed.
     </releaseNotes>
     <copyright>Copyright Nathan.Risto 2015</copyright>
-    <tags>Wpf INotifyPropertyChanged INotifyCollectionChanged</tags>
+    <tags>INotifyPropertyChanged INotifyCollectionChanged</tags>
   </metadata>
 </package>

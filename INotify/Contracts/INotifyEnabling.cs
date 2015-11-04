@@ -1,4 +1,4 @@
-﻿namespace INotify
+﻿namespace INotify.Contracts
 {
     public interface INotifyEnabling
     {

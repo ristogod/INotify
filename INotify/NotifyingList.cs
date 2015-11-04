@@ -4,18 +4,12 @@ namespace INotify
 {
     public sealed class NotifyingList<T> : NotifyingCollection<T>
     {
-        public NotifyingList()
-        {
-        }
+        public NotifyingList() {}
 
         public NotifyingList(int capacity)
-            : base(capacity)
-        {
-        }
+            : base(capacity) {}
 
         public NotifyingList(IEnumerable<T> collection)
-            : base(collection)
-        {
-        }
+            : base(collection) {}
     }
 }
