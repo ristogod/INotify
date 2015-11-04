@@ -135,7 +135,8 @@ namespace INotify
                 return;
 
             var args = new ReactToPropertyEventArgs(session, propertyName);
-            PropertySessions.TrackReaction(this, args);
+            if (!PropertySessions.TrackReaction(this, args))
+                return;
 
             object value;
             if (_dependentPropertyValuesDictionary.TryRemove(propertyName, out value))

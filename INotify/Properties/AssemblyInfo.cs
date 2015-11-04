@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("INotify")]
-[assembly: AssemblyDescription("Inheritable classes that implement notifying interfaces for use with WPF.")]
+[assembly: AssemblyDescription("Inheritable classes that implement notifying interfaces.")]
 #if DEBUG
 
 [assembly: AssemblyConfiguration("Debug")]
@@ -17,5 +17,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("5e58d9df-e314-400f-9643-adb4303d1de0")]
-[assembly: AssemblyVersion("18.13.15.1015")]
-[assembly: AssemblyFileVersion("18.13.15.1015")]
+[assembly: AssemblyVersion("19.0.15.1103")]
+[assembly: AssemblyFileVersion("19.0.15.1103")]
