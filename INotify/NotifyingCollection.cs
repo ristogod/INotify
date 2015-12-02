@@ -301,17 +301,12 @@ namespace INotify
 
         void IReactToCollection.OnCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            var handler = _collectionChanged;
-
-            if (handler == null || args == null)
-                return;
-
-            if (!IsNotificationsEnabled)
+            if (!IsNotificationsEnabled || args == null)
                 return;
 
             var disposable = BlockReentrancy();
             using (disposable)
-                handler(this, args);
+                _collectionChanged?.Invoke(this, args);
         }
 
         public event ReactToCollectionItemPropertyEventHandler ReactToCollectionItemProperty
