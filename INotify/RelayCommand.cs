@@ -36,9 +36,6 @@ namespace INotify
             _canExecute = canExecute;
         }
 
-        [DebuggerStepThrough]
-        public bool CanExecute(object parameter = null) => _canExecute?.Invoke((T)parameter) ?? true;
-
         public event EventHandler CanExecuteChanged
         {
             add
@@ -53,8 +50,11 @@ namespace INotify
             }
         }
 
-        public void Execute() => _execute(default(T));
+        [DebuggerStepThrough]
+        public bool CanExecute(object parameter = null) => _canExecute?.Invoke((T)parameter) ?? true;
+
         public void Execute(object parameter) => _execute((T)parameter);
+        public void Execute() => _execute(default(T));
         public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
     }
 
@@ -87,9 +87,6 @@ namespace INotify
             _canExecute = canExecute;
         }
 
-        [DebuggerStepThrough]
-        public bool CanExecute(object parameter = null) => _canExecute?.Invoke() ?? true;
-
         public event EventHandler CanExecuteChanged
         {
             add
@@ -104,8 +101,11 @@ namespace INotify
             }
         }
 
-        public void Execute() => _execute();
+        [DebuggerStepThrough]
+        public bool CanExecute(object parameter = null) => _canExecute?.Invoke() ?? true;
+
         public void Execute(object parameter) => _execute();
+        public void Execute() => _execute();
         public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
     }
 }

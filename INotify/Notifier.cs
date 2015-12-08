@@ -19,8 +19,8 @@ namespace INotify
     {
         internal static readonly CollectionsSessionDictionary CollectionSessions = new CollectionsSessionDictionary();
         internal static readonly PropertiesSessionDictionary PropertySessions = new PropertiesSessionDictionary();
-        private static long _session;
         private static readonly object Locker = new object();
+        private static long _session;
         protected internal bool IsNotificationsEnabled = true;
         internal readonly PropertyDependenciesDictionary LocalPropertyDependencies = new PropertyDependenciesDictionary();
         internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new PropertyDependenciesDictionary();
