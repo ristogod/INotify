@@ -54,7 +54,6 @@ namespace INotify
         public bool CanExecute(object parameter = null) => _canExecute?.Invoke((T)parameter) ?? true;
 
         public void Execute(object parameter) => _execute((T)parameter);
-        public void Execute() => _execute(default(T));
         public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
     }
 

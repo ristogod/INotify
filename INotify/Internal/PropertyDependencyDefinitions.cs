@@ -78,22 +78,22 @@ namespace INotify.Internal
             return this;
         }
 
-        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command)
+        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command, TParam value)
         {
             if (command != null)
-                Executions.Add(command.Execute);
+                Executions.Add(() => command.Execute(value));
 
             return this;
         }
 
-        public PropertyDependencyDefinitions IfCanExecute<TParam>(RelayCommand<TParam> command)
+        public PropertyDependencyDefinitions IfCanExecute<TParam>(RelayCommand<TParam> command, TParam value)
         {
             if (command != null)
             {
                 Executions.Add(() =>
                                {
-                                   if (command.CanExecute())
-                                       command.Execute();
+                                   if (command.CanExecute(value))
+                                       command.Execute(value);
                                });
             }
 

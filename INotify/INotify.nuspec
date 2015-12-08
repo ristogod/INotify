@@ -12,9 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      Circular property definitions no longer cause infinite event invocation loops. 
-      
-      The optional "condition" parameter is no longer needed and has been removed.
+      Fixed issue with calling command Execute and CanExecute when a parameter is required. It's now possible to pass the correct param value, whereas before it took the default value for the type declared.
     </releaseNotes>
     <copyright>Copyright Nathan.Risto 2015</copyright>
     <tags>INotifyPropertyChanged INotifyCollectionChanged</tags>
