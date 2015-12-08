@@ -326,6 +326,12 @@ namespace INotify
             }
         }
 
+        ~NotifyingCollection()
+        {
+            _reactToCollection -= RespondToCollectionReactions;
+            _reactToCollectionItemProperty -= RespondToCollectionItemPropertyReactions;
+        }
+
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private event NotifyCollectionChangedEventHandler _collectionChanged;
 
