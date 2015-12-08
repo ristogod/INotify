@@ -68,6 +68,11 @@ namespace INotify
             }
         }
 
+        ~Notifier()
+        {
+            _reactToProperty -= RespondToPropertyReactions;
+        }
+
         public event ReactToPropertyEventHandler ReactToProperty
         {
             add
