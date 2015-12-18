@@ -9,22 +9,20 @@ namespace INotify.Internal
 {
     public sealed class PropertyDependencyDefinitions
     {
+        #region fields
+
         internal readonly List<Action> Executions = new List<Action>();
         internal readonly List<Property> List = new List<Property>();
+
+        #endregion
+
+        #region constructors
+
         internal PropertyDependencyDefinitions() {}
-        internal PropertyDependencyDefinitions Affects<TProp>(Expression<Func<TProp>> property) => Affects(property.GetName());
 
-        internal PropertyDependencyDefinitions Affects(string property)
-        {
-            var propertyName = List.SingleOrDefault(p => p.Equals(property));
-            if (propertyName != null)
-                return this;
+        #endregion
 
-            propertyName = new Property(property);
-            List.Add(propertyName);
-
-            return this;
-        }
+        #region methods
 
         public PropertyDependencyDefinitions Execute(Action action)
         {
@@ -38,6 +36,22 @@ namespace INotify.Internal
         {
             if (command != null)
                 Executions.Add(() => command.Execute(null));
+
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Execute(RelayCommand command)
+        {
+            if (command != null)
+                Executions.Add(command.Execute);
+
+            return this;
+        }
+
+        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command, TParam value)
+        {
+            if (command != null)
+                Executions.Add(() => command.Execute(value));
 
             return this;
         }
@@ -56,14 +70,6 @@ namespace INotify.Internal
             return this;
         }
 
-        public PropertyDependencyDefinitions Execute(RelayCommand command)
-        {
-            if (command != null)
-                Executions.Add(command.Execute);
-
-            return this;
-        }
-
         public PropertyDependencyDefinitions IfCanExecute(RelayCommand command)
         {
             if (command != null)
@@ -74,14 +80,6 @@ namespace INotify.Internal
                                        command.Execute();
                                });
             }
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command, TParam value)
-        {
-            if (command != null)
-                Executions.Add(() => command.Execute(value));
 
             return this;
         }
@@ -116,6 +114,22 @@ namespace INotify.Internal
             return this;
         }
 
+        internal PropertyDependencyDefinitions Affects<TProp>(Expression<Func<TProp>> property) => Affects(property.GetName());
+
+        internal PropertyDependencyDefinitions Affects(string property)
+        {
+            var propertyName = List.SingleOrDefault(p => p.Equals(property));
+            if (propertyName != null)
+                return this;
+
+            propertyName = new Property(property);
+            List.Add(propertyName);
+
+            return this;
+        }
+
         internal void Free(string name) => List.RemoveAll(p => p.Equals(name));
+
+        #endregion
     }
 }

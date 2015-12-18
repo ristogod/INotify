@@ -4,6 +4,8 @@ namespace INotify.Dictionaries
 {
     internal sealed class PropertyReferenceDictionary<T> : ConcurrentDictionary<string, T>
     {
+        #region methods
+
         public void Add(string referenceName, T reference)
         {
             if (referenceName == null || reference == null)
@@ -21,5 +23,7 @@ namespace INotify.Dictionaries
 
             return outValue;
         }
+
+        #endregion
     }
 }

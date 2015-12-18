@@ -5,6 +5,8 @@ namespace INotify.EventArguments
 {
     public sealed class ReactToCollectionEventArgs : NotifyCollectionChangedEventArgs
     {
+        #region constructors
+
         public ReactToCollectionEventArgs(long session, NotifyCollectionChangedAction action)
             : base(action)
         {
@@ -71,6 +73,12 @@ namespace INotify.EventArguments
             Session = session;
         }
 
+        #endregion
+
+        #region properties
+
         public long Session { get; internal set; }
+
+        #endregion
     }
 }

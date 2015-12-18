@@ -4,6 +4,8 @@ namespace INotify
 {
     public sealed class NotifyingList<T> : NotifyingCollection<T>
     {
+        #region constructors
+
         public NotifyingList() {}
 
         public NotifyingList(int capacity)
@@ -11,5 +13,7 @@ namespace INotify
 
         public NotifyingList(IEnumerable<T> collection)
             : base(collection) {}
+
+        #endregion
     }
 }

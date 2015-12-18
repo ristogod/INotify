@@ -17,6 +17,8 @@ namespace INotify
 {
     public abstract class Notifier : INotifyPropertyChanged, INotifyEnabling
     {
+        #region fields
+
         internal static readonly CollectionsSessionDictionary CollectionSessions = new CollectionsSessionDictionary();
         internal static readonly PropertiesSessionDictionary PropertySessions = new PropertiesSessionDictionary();
         private static readonly object Locker = new object();
@@ -34,22 +36,23 @@ namespace INotify
         private readonly ConcurrentDictionary<string, object> _propertyValuesDictionary = new ConcurrentDictionary<string, object>();
         private readonly List<ReactToPropertyEventHandler> _reactToPropertySubscribers = new List<ReactToPropertyEventHandler>();
 
+        #endregion
+
+        #region constructors
+
         protected Notifier()
         {
             _reactToProperty += RespondToPropertyReactions;
         }
 
-        public void DisableNotifications()
+        ~Notifier()
         {
-            IsNotificationsEnabled = false;
-            _dependentPropertyValuesDictionary.Clear();
+            _reactToProperty -= RespondToPropertyReactions;
         }
 
-        public void EnableNotifications()
-        {
-            IsNotificationsEnabled = true;
-            _dependentPropertyValuesDictionary.Clear();
-        }
+        #endregion
+
+        #region events
 
         public event PropertyChangedEventHandler PropertyChanged
         {
@@ -66,11 +69,6 @@ namespace INotify
                 _propertyChanged -= value;
                 _propertyChangedSubscribers.Remove(value);
             }
-        }
-
-        ~Notifier()
-        {
-            _reactToProperty -= RespondToPropertyReactions;
         }
 
         public event ReactToPropertyEventHandler ReactToProperty
@@ -96,45 +94,23 @@ namespace INotify
         [SuppressMessage("ReSharper", "InconsistentNaming")]
         private event ReactToPropertyEventHandler _reactToProperty;
 
+        #endregion
+
+        #region methods
+
         public static string GetName<TProp>(Expression<Func<TProp>> property) => property.GetName();
 
-        internal static void EndSession(long session)
+        public void DisableNotifications()
         {
-            CollectionChangesDictionary collectionNotifications;
-            if (CollectionSessions.TryRemove(session, out collectionNotifications))
-            {
-                foreach (var cn in collectionNotifications)
-                    cn.Key.OnCollectionChanged(cn.Value);
-            }
-
-            ReactToPropertyDictionary propertyNotifications;
-            if (!PropertySessions.TryRemove(session, out propertyNotifications))
-                return;
-
-            foreach (var propertyNotification in propertyNotifications)
-            {
-                var notifier = propertyNotification.Key;
-                if (!notifier.IsNotificationsEnabled)
-                    continue;
-
-                foreach (var pd in propertyNotification.Value)
-                    notifier.OnPropertyChanged(pd.Value);
-            }
+            IsNotificationsEnabled = false;
+            _dependentPropertyValuesDictionary.Clear();
         }
 
-        internal static long StartSession()
+        public void EnableNotifications()
         {
-            lock (Locker)
-            {
-                unchecked
-                {
-                    _session++;
-                }
-                return _session;
-            }
+            IsNotificationsEnabled = true;
+            _dependentPropertyValuesDictionary.Clear();
         }
-
-        internal void OnPropertyChanged(PropertyChangedEventArgs args) => _propertyChanged?.Invoke(this, args);
 
         protected internal virtual void OnReactToProperty(long session, string propertyName)
         {
@@ -203,11 +179,6 @@ namespace INotify
         protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             => ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
 
-        protected PropertyDependencyDefinitions PropertyChangeFor<TProp>(Expression<Func<TProp>> property) => LocalPropertyDependencies.Get(property.GetName());
-
-        protected PropertyDependencyDefinitions PropertyChangeFor<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
-            => ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
-
         protected TProp GetValue<TProp>(Expression<Func<TProp>> property, Func<TProp> computed)
         {
             var propertyName = property.GetName();
@@ -261,6 +232,11 @@ namespace INotify
                                                   });
         }
 
+        protected PropertyDependencyDefinitions PropertyChangeFor<TProp>(Expression<Func<TProp>> property) => LocalPropertyDependencies.Get(property.GetName());
+
+        protected PropertyDependencyDefinitions PropertyChangeFor<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
+            => ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName());
+
         protected PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
 
         protected bool SetValue<TProp>(TProp value, Expression<Func<TProp>> property, bool notifyWhenUnchanged = false)
@@ -295,6 +271,44 @@ namespace INotify
 
             return changed;
         }
+
+        internal static void EndSession(long session)
+        {
+            CollectionChangesDictionary collectionNotifications;
+            if (CollectionSessions.TryRemove(session, out collectionNotifications))
+            {
+                foreach (var cn in collectionNotifications)
+                    cn.Key.OnCollectionChanged(cn.Value);
+            }
+
+            ReactToPropertyDictionary propertyNotifications;
+            if (!PropertySessions.TryRemove(session, out propertyNotifications))
+                return;
+
+            foreach (var propertyNotification in propertyNotifications)
+            {
+                var notifier = propertyNotification.Key;
+                if (!notifier.IsNotificationsEnabled)
+                    continue;
+
+                foreach (var pd in propertyNotification.Value)
+                    notifier.OnPropertyChanged(pd.Value);
+            }
+        }
+
+        internal static long StartSession()
+        {
+            lock (Locker)
+            {
+                unchecked
+                {
+                    _session++;
+                }
+                return _session;
+            }
+        }
+
+        internal void OnPropertyChanged(PropertyChangedEventArgs args) => _propertyChanged?.Invoke(this, args);
 
         private static void HandleExecutions(PropertyDependencyDefinitions propertyExecutions)
         {
@@ -474,10 +488,20 @@ namespace INotify
             }
         }
 
+        #endregion
+
+        #region nested types
+
         protected class PropertyDependencyMapper
         {
+            #region fields
+
             private readonly string _dependentPropertyName;
             private readonly Notifier _notifier;
+
+            #endregion
+
+            #region constructors
 
             protected internal PropertyDependencyMapper(string dependentPropertyName, Notifier notifier)
             {
@@ -485,18 +509,9 @@ namespace INotify
                 _dependentPropertyName = dependentPropertyName;
             }
 
-            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property)
-            {
-                _notifier.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
-                return this;
-            }
+            #endregion
 
-            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
-            {
-                _notifier.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
-                _notifier.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
-                return this;
-            }
+            #region methods
 
             public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged
             {
@@ -513,6 +528,19 @@ namespace INotify
                 return this;
             }
 
+            public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property)
+            {
+                _notifier.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                return this;
+            }
+
+            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
+            {
+                _notifier.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
+                _notifier.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
+                return this;
+            }
+
             public PropertyDependencyMapper OverridesWithoutBaseReference()
             {
                 foreach (var dependency in
@@ -524,6 +552,10 @@ namespace INotify
 
                 return this;
             }
+
+            #endregion
         }
+
+        #endregion
     }
 }

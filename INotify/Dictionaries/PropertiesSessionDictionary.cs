@@ -5,6 +5,8 @@ namespace INotify.Dictionaries
 {
     internal sealed class PropertiesSessionDictionary : ConcurrentDictionary<long, ReactToPropertyDictionary>
     {
+        #region methods
+
         public bool TrackReaction(Notifier notifier, ReactToPropertyEventArgs args)
         {
             if (args.Session <= 0)
@@ -44,5 +46,7 @@ namespace INotify.Dictionaries
 
             return tracked;
         }
+
+        #endregion
     }
 }
