@@ -2,7 +2,11 @@
 {
     public interface INotifyEnabling
     {
-        void EnableNotifications();
+        #region methods
+
         void DisableNotifications();
+        void EnableNotifications();
+
+        #endregion
     }
 }

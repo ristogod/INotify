@@ -12,8 +12,14 @@ namespace INotify
     /// </summary>
     public class RelayCommand<T> : ICommand
     {
+        #region fields
+
         private readonly Predicate<T> _canExecute;
         private readonly Action<T> _execute;
+
+        #endregion
+
+        #region constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;"/> class and the command can always be executed.
@@ -36,6 +42,10 @@ namespace INotify
             _canExecute = canExecute;
         }
 
+        #endregion
+
+        #region events
+
         public event EventHandler CanExecuteChanged
         {
             add
@@ -50,12 +60,17 @@ namespace INotify
             }
         }
 
+        #endregion
+
+        #region methods
+
         [DebuggerStepThrough]
         public bool CanExecute(object parameter = null) => _canExecute?.Invoke((T)parameter) ?? true;
 
         public void Execute(object parameter) => _execute((T)parameter);
-        public void Execute() => _execute(default(T));
         public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
+
+        #endregion
     }
 
     /// <summary>
@@ -63,8 +78,14 @@ namespace INotify
     /// </summary>
     public class RelayCommand : ICommand
     {
+        #region fields
+
         private readonly Func<bool> _canExecute;
         private readonly Action _execute;
+
+        #endregion
+
+        #region constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RelayCommand"/> class and the command can always be executed.
@@ -87,6 +108,10 @@ namespace INotify
             _canExecute = canExecute;
         }
 
+        #endregion
+
+        #region events
+
         public event EventHandler CanExecuteChanged
         {
             add
@@ -101,11 +126,17 @@ namespace INotify
             }
         }
 
+        #endregion
+
+        #region methods
+
         [DebuggerStepThrough]
         public bool CanExecute(object parameter = null) => _canExecute?.Invoke() ?? true;
 
         public void Execute(object parameter) => _execute();
         public void Execute() => _execute();
         public void RaiseCanExecuteChanged() => InvalidateRequerySuggested();
+
+        #endregion
     }
 }

@@ -4,6 +4,8 @@ namespace INotify.EventArguments
 {
     public class ReactToCollectionItemPropertyEventArgs : ReactToPropertyEventArgs
     {
+        #region constructors
+
         public ReactToCollectionItemPropertyEventArgs(Notifier item, ReactToPropertyEventArgs args)
             : base(args.Session, args.PropertyName)
         {
@@ -16,6 +18,12 @@ namespace INotify.EventArguments
             Item = item;
         }
 
+        #endregion
+
+        #region properties
+
         public INotifyPropertyChanged Item { get; set; }
+
+        #endregion
     }
 }

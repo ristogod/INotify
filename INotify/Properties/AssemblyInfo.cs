@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyConfiguration("Debug")]
 #else
+
 [assembly: AssemblyConfiguration("Release")]
 #endif
 
@@ -17,5 +18,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("5e58d9df-e314-400f-9643-adb4303d1de0")]
-[assembly: AssemblyVersion("19.3.15.1207")]
-[assembly: AssemblyFileVersion("19.3.15.1207")]
+[assembly: AssemblyVersion("19.5.15.1218")]
+[assembly: AssemblyFileVersion("19.5.15.1218")]

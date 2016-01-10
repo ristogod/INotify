@@ -6,6 +6,8 @@ namespace INotify.Dictionaries
 {
     internal sealed class CollectionsSessionDictionary : ConcurrentDictionary<long, CollectionChangesDictionary>
     {
+        #region methods
+
         public void TrackReaction(IReactToCollection collection, ReactToCollectionEventArgs args)
         {
             if (args.Session > 0)
@@ -26,5 +28,7 @@ namespace INotify.Dictionaries
                             });
             }
         }
+
+        #endregion
     }
 }
