@@ -4,5 +4,5 @@ using INotify.Contracts;
 
 namespace INotify.Dictionaries
 {
-    internal sealed class CollectionChangesDictionary : ConcurrentDictionary<IReactToCollection, NotifyCollectionChangedEventArgs> {}
+    sealed class CollectionChangesDictionary : ConcurrentDictionary<IReactToCollection, NotifyCollectionChangedEventArgs> {}
 }

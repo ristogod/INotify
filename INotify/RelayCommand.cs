@@ -8,28 +8,30 @@ using static System.Windows.Input.CommandManager;
 namespace INotify
 {
     /// <summary>
-    /// A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
+    ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
+    ///     return value for the CanExecute method is 'true'.
     /// </summary>
     public class RelayCommand<T> : ICommand
     {
         #region fields
 
-        private readonly Predicate<T> _canExecute;
-        private readonly Action<T> _execute;
+        readonly Predicate<T> _canExecute;
+        readonly Action<T> _execute;
 
         #endregion
 
         #region constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;"/> class and the command can always be executed.
+        ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;" /> class and the command can always be
+        ///     executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         public RelayCommand(Action<T> execute)
             : this(execute, null) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;"/> class.
+        ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;" /> class.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>
@@ -74,28 +76,29 @@ namespace INotify
     }
 
     /// <summary>
-    /// A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default return value for the CanExecute method is 'true'.
+    ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
+    ///     return value for the CanExecute method is 'true'.
     /// </summary>
     public class RelayCommand : ICommand
     {
         #region fields
 
-        private readonly Func<bool> _canExecute;
-        private readonly Action _execute;
+        readonly Func<bool> _canExecute;
+        readonly Action _execute;
 
         #endregion
 
         #region constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand"/> class and the command can always be executed.
+        ///     Initializes a new instance of the <see cref="RelayCommand" /> class and the command can always be executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         public RelayCommand(Action execute)
             : this(execute, null) {}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RelayCommand"/> class.
+        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>

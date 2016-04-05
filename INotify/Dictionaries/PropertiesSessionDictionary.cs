@@ -3,7 +3,7 @@ using INotify.EventArguments;
 
 namespace INotify.Dictionaries
 {
-    internal sealed class PropertiesSessionDictionary : ConcurrentDictionary<long, ReactToPropertyDictionary>
+    sealed class PropertiesSessionDictionary : ConcurrentDictionary<long, ReactToPropertyDictionary>
     {
         #region methods
 

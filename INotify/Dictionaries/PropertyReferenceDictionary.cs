@@ -2,7 +2,7 @@
 
 namespace INotify.Dictionaries
 {
-    internal sealed class PropertyReferenceDictionary<T> : ConcurrentDictionary<string, T>
+    sealed class PropertyReferenceDictionary<T> : ConcurrentDictionary<string, T>
     {
         #region methods
 

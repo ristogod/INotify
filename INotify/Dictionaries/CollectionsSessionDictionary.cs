@@ -4,7 +4,7 @@ using INotify.EventArguments;
 
 namespace INotify.Dictionaries
 {
-    internal sealed class CollectionsSessionDictionary : ConcurrentDictionary<long, CollectionChangesDictionary>
+    sealed class CollectionsSessionDictionary : ConcurrentDictionary<long, CollectionChangesDictionary>
     {
         #region methods
 
