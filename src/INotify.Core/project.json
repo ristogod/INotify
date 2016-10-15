@@ -9,12 +9,28 @@
       "frameworkAssemblies": {
         "System.Runtime.Serialization": "4.0.0.0"
       }
-    }, 
+    },
     "netstandard1.6": {
       "imports": "dnxcore50",
       "dependencies": {
-        "NETStandard.Library": "1.6.0" 
+        "NETStandard.Library": "1.6.0"
       }
+    }
+  },
+
+  "packOptions": {
+    "title":  "INotify.Core", 
+    "authors": [ "Nathan Risto" ],
+    "owners": [ "Nathan Risto" ],
+    "releaseNotes": "Converted to .NET Core",
+    "licenseUrl": "http://www.gnu.org/licenses/gpl.txt",
+    "projectUrl": "https://github.com/ristogod/INotify",
+    "requireLicenseAcceptance": false,
+    "tags": [ "INotifyPropertyChanged", "INotifyCollectionChanged" ],
+    "description": "Inheritable classes that implement notifying interfaces.",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/ristogod/INotify"
     }
   }
 }
