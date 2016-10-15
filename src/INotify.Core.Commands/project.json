@@ -1,0 +1,16 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "INotify.Core": "1.0.0-*"
+  },
+
+  "frameworks": {
+    "net40": {
+      "frameworkAssemblies": {
+        "PresentationCore" :  "4.0.0.0", 
+        "System.Runtime.Serialization": "4.0.0.0"
+      }
+    }
+  }
+}
