@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Windows.Input;
 using static System.Windows.Input.CommandManager;
 
-namespace INotify
+namespace INotify.Commands
 {
     /// <summary>
     ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
@@ -28,7 +28,7 @@ namespace INotify
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         public RelayCommand(Action<T> execute)
-            : this(execute, null) {}
+            : this(execute, null) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;" /> class.
@@ -95,7 +95,7 @@ namespace INotify
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         public RelayCommand(Action execute)
-            : this(execute, null) {}
+            : this(execute, null) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand" /> class.

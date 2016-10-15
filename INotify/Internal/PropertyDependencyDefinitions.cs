@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Windows.Input;
 using INotify.Extensions;
 
 namespace INotify.Internal
@@ -11,7 +10,7 @@ namespace INotify.Internal
     {
         #region fields
 
-        internal readonly List<Action> Executions = new List<Action>();
+        public readonly List<Action> Executions = new List<Action>();
         internal readonly List<Property> List = new List<Property>();
 
         #endregion
@@ -28,88 +27,6 @@ namespace INotify.Internal
         {
             if (action != null)
                 Executions.Add(action);
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Execute(ICommand command)
-        {
-            if (command != null)
-                Executions.Add(() => command.Execute(null));
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Execute(RelayCommand command)
-        {
-            if (command != null)
-                Executions.Add(command.Execute);
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Execute<TParam>(RelayCommand<TParam> command, TParam value)
-        {
-            if (command != null)
-                Executions.Add(() => command.Execute(value));
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions IfCanExecute(ICommand command)
-        {
-            if (command != null)
-            {
-                Executions.Add(() =>
-                               {
-                                   if (command.CanExecute(null))
-                                       command.Execute(null);
-                               });
-            }
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions IfCanExecute(RelayCommand command)
-        {
-            if (command != null)
-            {
-                Executions.Add(() =>
-                               {
-                                   if (command.CanExecute())
-                                       command.Execute();
-                               });
-            }
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions IfCanExecute<TParam>(RelayCommand<TParam> command, TParam value)
-        {
-            if (command != null)
-            {
-                Executions.Add(() =>
-                               {
-                                   if (command.CanExecute(value))
-                                       command.Execute(value);
-                               });
-            }
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Raise(RelayCommand command)
-        {
-            if (command != null)
-                Executions.Add(command.RaiseCanExecuteChanged);
-
-            return this;
-        }
-
-        public PropertyDependencyDefinitions Raise<TParam>(RelayCommand<TParam> command)
-        {
-            if (command != null)
-                Executions.Add(command.RaiseCanExecuteChanged);
 
             return this;
         }

@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Xml.Serialization;
 using INotify.Contracts;
 using INotify.Delegates;
 using INotify.Dictionaries;
@@ -140,7 +139,6 @@ namespace INotify
 
         #region properties
 
-        [XmlIgnore]
         public int Capacity
         {
             get { return _list.Capacity; }

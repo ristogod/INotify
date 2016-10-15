@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("INotify")]
-[assembly: AssemblyDescription("Inheritable classes that implement notifying interfaces.")]
+[assembly: AssemblyTitle("INotify.Commands")]
+[assembly: AssemblyDescription("RelayCommand and extension methods for INotify")]
 #if DEBUG
 
 [assembly: AssemblyConfiguration("Debug")]
@@ -12,11 +12,11 @@ using System.Runtime.InteropServices;
 #endif
 
 [assembly: AssemblyCompany("Nathan.Risto")]
-[assembly: AssemblyProduct("INotify")]
+[assembly: AssemblyProduct("INotify.Commands")]
 [assembly: AssemblyCopyright("Copyright © Nathan.Risto 2016")]
 [assembly: AssemblyTrademark("Nathan.Risto®")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: Guid("5e58d9df-e314-400f-9643-adb4303d1de0")]
-[assembly: AssemblyVersion("20.0.16.1014")]
-[assembly: AssemblyFileVersion("20.0.16.1014")]
+[assembly: Guid("f36d9a16-9806-4a59-921a-64ba9bb432a5")]
+[assembly: AssemblyVersion("1.0.16.1014")]
+[assembly: AssemblyFileVersion("1.0.16.1014")]

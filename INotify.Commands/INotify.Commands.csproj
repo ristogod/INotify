@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FAFAC0BF-0892-466E-8936-32672369ED7D}</ProjectGuid>
+    <ProjectGuid>{F36D9A16-9806-4A59-921A-64BA9BB432A5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>INotify</RootNamespace>
-    <AssemblyName>INotify</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>INotify.Commands</RootNamespace>
+    <AssemblyName>INotify.Commands</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,34 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Dictionaries\CollectionChangesDictionary.cs" />
-    <Compile Include="Dictionaries\CollectionsSessionDictionary.cs" />
-    <Compile Include="Dictionaries\PropertiesSessionDictionary.cs" />
-    <Compile Include="Dictionaries\PropertyChangesDictionary.cs" />
-    <Compile Include="Dictionaries\PropertyDependenciesDictionary.cs" />
-    <Compile Include="Dictionaries\PropertyReferenceDictionary.cs" />
-    <Compile Include="Dictionaries\ReactToPropertyDictionary.cs" />
-    <Compile Include="Dictionaries\ReferencePropertyDependenciesDictionary.cs" />
-    <Compile Include="Extensions\DictionaryExtensions.cs" />
-    <Compile Include="Extensions\ExpressionExtensions.cs" />
-    <Compile Include="Contracts\INotifyEnabling.cs" />
-    <Compile Include="Contracts\IReactToCollection.cs" />
-    <Compile Include="Contracts\IReactToCollectionItemProperty.cs" />
-    <Compile Include="Notifier.cs" />
-    <Compile Include="NotifyingCollection.cs" />
-    <Compile Include="NotifyingList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Internal\Property.cs" />
-    <Compile Include="Internal\PropertyDependencyDefinitions.cs" />
-    <Compile Include="EventArguments\ReactToCollectionEventArgs.cs" />
-    <Compile Include="Delegates\ReactToCollectionEventHandler.cs" />
-    <Compile Include="EventArguments\ReactToCollectionItemPropertyEventArgs.cs" />
-    <Compile Include="Delegates\ReactToCollectionItemPropertyEventHandler.cs" />
-    <Compile Include="EventArguments\ReactToPropertyEventArgs.cs" />
-    <Compile Include="Delegates\ReactToPropertyEventHandler.cs" />
+    <Compile Include="PropertyDependencyDefinitionsExtensions.cs" />
+    <Compile Include="RelayCommand.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\INotify\INotify.csproj">
+      <Project>{fafac0bf-0892-466e-8936-32672369ed7d}</Project>
+      <Name>INotify</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
