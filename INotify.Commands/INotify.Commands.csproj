@@ -39,12 +39,6 @@
     <Compile Include="PropertyDependencyDefinitionsExtensions.cs" />
     <Compile Include="RelayCommand.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\INotify\INotify.csproj">
-      <Project>{fafac0bf-0892-466e-8936-32672369ed7d}</Project>
-      <Name>INotify</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
