@@ -11,7 +11,6 @@ namespace INotify.Core.Dictionaries
         public void TrackReaction(IReactToCollection collection, ReactToCollectionEventArgs args)
         {
             if (args.Session > 0)
-            {
                 AddOrUpdate(args.Session,
                             sessionKey =>
                             {
@@ -26,7 +25,6 @@ namespace INotify.Core.Dictionaries
 
                                 return ncd;
                             });
-            }
         }
 
         #endregion

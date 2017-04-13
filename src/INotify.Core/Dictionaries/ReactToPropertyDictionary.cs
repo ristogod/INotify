@@ -2,5 +2,5 @@
 
 namespace INotify.Core.Dictionaries
 {
-    sealed class ReactToPropertyDictionary : ConcurrentDictionary<Notifier, PropertyChangesDictionary> {}
+    sealed class ReactToPropertyDictionary : ConcurrentDictionary<Notifier, PropertyChangesDictionary> { }
 }

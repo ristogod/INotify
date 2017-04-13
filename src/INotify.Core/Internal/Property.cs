@@ -4,10 +4,7 @@
     {
         #region constructors
 
-        internal Property(string name)
-        {
-            Name = name;
-        }
+        internal Property(string name) => Name = name;
 
         #endregion
 

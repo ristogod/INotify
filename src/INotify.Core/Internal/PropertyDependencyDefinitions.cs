@@ -17,7 +17,7 @@ namespace INotify.Core.Internal
 
         #region constructors
 
-        internal PropertyDependencyDefinitions() {}
+        internal PropertyDependencyDefinitions() { }
 
         #endregion
 

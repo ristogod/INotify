@@ -7,16 +7,10 @@ namespace INotify.Core.EventArguments
         #region constructors
 
         public ReactToCollectionItemPropertyEventArgs(Notifier item, ReactToPropertyEventArgs args)
-            : base(args.Session, args.PropertyName)
-        {
-            Item = item;
-        }
+            : base(args.Session, args.PropertyName) => Item = item;
 
         public ReactToCollectionItemPropertyEventArgs(INotifyPropertyChanged item, ReactToPropertyEventArgs args)
-            : base(args.Session, args.PropertyName)
-        {
-            Item = item;
-        }
+            : base(args.Session, args.PropertyName) => Item = item;
 
         #endregion
 

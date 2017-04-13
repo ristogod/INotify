@@ -34,13 +34,11 @@ namespace INotify.Core.Commands
         public static PropertyDependencyDefinitions IfCanExecute(this PropertyDependencyDefinitions propertyDependencyDefinitions, ICommand command)
         {
             if (command != null)
-            {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
                                                                  if (command.CanExecute(null))
                                                                      command.Execute(null);
                                                              });
-            }
 
             return propertyDependencyDefinitions;
         }
@@ -48,29 +46,23 @@ namespace INotify.Core.Commands
         public static PropertyDependencyDefinitions IfCanExecute(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand command)
         {
             if (command != null)
-            {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
                                                                  if (command.CanExecute())
                                                                      command.Execute();
                                                              });
-            }
 
             return propertyDependencyDefinitions;
         }
 
-        public static PropertyDependencyDefinitions IfCanExecute<TParam>(this PropertyDependencyDefinitions propertyDependencyDefinitions,
-                                                                         RelayCommand<TParam> command,
-                                                                         TParam value)
+        public static PropertyDependencyDefinitions IfCanExecute<TParam>(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand<TParam> command, TParam value)
         {
             if (command != null)
-            {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
                                                                  if (command.CanExecute(value))
                                                                      command.Execute(value);
                                                              });
-            }
 
             return propertyDependencyDefinitions;
         }

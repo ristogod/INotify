@@ -3,5 +3,5 @@ using System.ComponentModel;
 
 namespace INotify.Core.Dictionaries
 {
-    sealed class PropertyChangesDictionary : ConcurrentDictionary<string, PropertyChangedEventArgs> {}
+    sealed class PropertyChangesDictionary : ConcurrentDictionary<string, PropertyChangedEventArgs> { }
 }

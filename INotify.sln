@@ -1,18 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26403.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{01DF61B8-FAA9-4C17-BE09-C47A9BE793F8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{45851F70-6E59-4E4D-97FB-43B438CCC3C9}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INotify.Core", "src\INotify.Core\INotify.Core.csproj", "{5ED91C3F-08F5-45D5-8723-39D6B8557051}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "INotify.Core", "src\INotify.Core\INotify.Core.xproj", "{5ED91C3F-08F5-45D5-8723-39D6B8557051}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "INotify.Core.Commands", "src\INotify.Core.Commands\INotify.Core.Commands.xproj", "{6BED4D52-8C73-4A14-9554-5ABA9E90DEF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "INotify.Core.Commands", "src\INotify.Core.Commands\INotify.Core.Commands.csproj", "{6BED4D52-8C73-4A14-9554-5ABA9E90DEF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

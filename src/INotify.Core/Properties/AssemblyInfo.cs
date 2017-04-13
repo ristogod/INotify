@@ -2,13 +2,11 @@
 using System.Runtime.InteropServices;
 
 #if DEBUG
-
 [assembly: AssemblyConfiguration("Debug")]
 #else
 
 [assembly: AssemblyConfiguration("Release")]
 #endif
-
 [assembly: AssemblyCompany("Nathan.Risto")]
 [assembly: AssemblyProduct("INotify.Core")]
 [assembly: AssemblyTrademark("Nathan.Risto®")]

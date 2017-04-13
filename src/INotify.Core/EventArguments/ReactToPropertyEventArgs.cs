@@ -7,10 +7,7 @@ namespace INotify.Core.EventArguments
         #region constructors
 
         public ReactToPropertyEventArgs(long session, string propertyName)
-            : base(propertyName)
-        {
-            Session = session;
-        }
+            : base(propertyName) => Session = session;
 
         #endregion
 

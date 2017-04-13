@@ -12,6 +12,7 @@ using INotify.Core.Dictionaries;
 using INotify.Core.EventArguments;
 using INotify.Core.Extensions;
 using INotify.Core.Internal;
+using static System.String;
 
 namespace INotify.Core
 {
@@ -40,15 +41,9 @@ namespace INotify.Core
 
         #region constructors
 
-        protected Notifier()
-        {
-            _reactToProperty += RespondToPropertyReactions;
-        }
+        protected Notifier() => _reactToProperty += RespondToPropertyReactions;
 
-        ~Notifier()
-        {
-            _reactToProperty -= RespondToPropertyReactions;
-        }
+        ~Notifier() => _reactToProperty -= RespondToPropertyReactions;
 
         #endregion
 
@@ -116,15 +111,14 @@ namespace INotify.Core
         {
             var handler = _reactToProperty;
 
-            if (handler == null || string.IsNullOrWhiteSpace(propertyName))
+            if (handler == null || IsNullOrWhiteSpace(propertyName))
                 return;
 
             var args = new ReactToPropertyEventArgs(session, propertyName);
             if (!PropertySessions.TrackReaction(this, args))
                 return;
 
-            object value;
-            if (_dependentPropertyValuesDictionary.TryRemove(propertyName, out value))
+            if (_dependentPropertyValuesDictionary.TryRemove(propertyName, out object value))
                 Ignore(value, propertyName);
 
             if (IsNotificationsEnabled)
@@ -133,17 +127,14 @@ namespace INotify.Core
 
         protected internal void RaiseDependencies(long session, string propertyName, PropertyDependenciesDictionary dependencies)
         {
-            PropertyDependencyDefinitions properties;
-            if (!dependencies.TryGetValue(propertyName, out properties))
+            if (!dependencies.TryGetValue(propertyName, out PropertyDependencyDefinitions properties))
                 return;
 
-            //TODO: move executions to queue and do after batch of property raises
             HandleExecutions(properties);
             RaiseDependencies(session, properties);
         }
 
-        protected internal void RaiseDependencies(long session, PropertyDependencyDefinitions dependencies)
-            => dependencies.List.ForEach(property => OnReactToProperty(session, property.Name));
+        protected internal void RaiseDependencies(long session, PropertyDependencyDefinitions dependencies) => dependencies.List.ForEach(property => OnReactToProperty(session, property.Name));
 
         protected internal virtual void RespondToCollectionItemPropertyReactions(object sender, ReactToCollectionItemPropertyEventArgs args)
         {
@@ -152,8 +143,7 @@ namespace INotify.Core
 
             foreach (var reference in _collectionItemsReferenceMap.Where(reference => reference.Value.Equals(sender)))
             {
-                PropertyDependenciesDictionary dependencies;
-                if (ReferencedCollectionItemPropertyDependencies.TryGetValue(reference.Key, out dependencies))
+                if (ReferencedCollectionItemPropertyDependencies.TryGetValue(reference.Key, out PropertyDependenciesDictionary dependencies))
                     RaiseDependencies(args.Session, args.PropertyName, dependencies);
 
                 break;
@@ -167,16 +157,14 @@ namespace INotify.Core
 
             foreach (var reference in _collectionReferenceMap.Where(reference => reference.Value.Equals(sender)))
             {
-                PropertyDependencyDefinitions dependencies;
-                if (ReferencedCollectionDependencies.TryGetValue(reference.Key, out dependencies))
+                if (ReferencedCollectionDependencies.TryGetValue(reference.Key, out PropertyDependencyDefinitions dependencies))
                     RaiseDependencies(args.Session, dependencies);
 
                 break;
             }
         }
 
-        protected PropertyDependencyDefinitions CollectionChangeFor<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged
-            => ReferencedCollectionDependencies.Get(property.GetName());
+        protected PropertyDependencyDefinitions CollectionChangeFor<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged => ReferencedCollectionDependencies.Get(property.GetName());
 
         protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property)
             where TColl : IReactToCollectionItemProperty => ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName())
@@ -189,8 +177,7 @@ namespace INotify.Core
             if (!IsNotificationsEnabled)
                 return computed();
 
-            object value;
-            if (_dependentPropertyValuesDictionary.TryGetValue(propertyName, out value))
+            if (_dependentPropertyValuesDictionary.TryGetValue(propertyName, out object value))
                 return (TProp)value;
 
             var v = computed();
@@ -211,8 +198,7 @@ namespace INotify.Core
 
         protected TProp GetValue<TProp>(Expression<Func<TProp>> property)
         {
-            object value;
-            if (_propertyValuesDictionary.TryGetValue(property.GetName(), out value))
+            if (_propertyValuesDictionary.TryGetValue(property.GetName(), out object value))
                 return (TProp)value;
 
             return default(TProp);
@@ -278,15 +264,11 @@ namespace INotify.Core
 
         internal static void EndSession(long session)
         {
-            CollectionChangesDictionary collectionNotifications;
-            if (CollectionSessions.TryRemove(session, out collectionNotifications))
-            {
+            if (CollectionSessions.TryRemove(session, out CollectionChangesDictionary collectionNotifications))
                 foreach (var cn in collectionNotifications)
                     cn.Key.OnCollectionChanged(cn.Value);
-            }
 
-            ReactToPropertyDictionary propertyNotifications;
-            if (!PropertySessions.TryRemove(session, out propertyNotifications))
+            if (!PropertySessions.TryRemove(session, out ReactToPropertyDictionary propertyNotifications))
                 return;
 
             foreach (var propertyNotification in propertyNotifications)
@@ -325,7 +307,7 @@ namespace INotify.Core
             if (value is Notifier)
                 IgnorePropertyReactionsOn(propertyName, value as Notifier);
             else if (value is INotifyPropertyChanged)
-                IgnorePropertyChangesOn(propertyName, value as INotifyPropertyChanged);
+                IgnorePropertyChangesOn(propertyName, (INotifyPropertyChanged)value);
 
             if (value is IReactToCollection)
                 IgnoreCollectionReactionsOn(propertyName, value as IReactToCollection);
@@ -426,7 +408,7 @@ namespace INotify.Core
             if (value is Notifier)
                 ListenForPropertyReactionsOn(propertyName, value as Notifier);
             else if (value is INotifyPropertyChanged)
-                ListenForPropertyChangesOn(propertyName, value as INotifyPropertyChanged);
+                ListenForPropertyChangesOn(propertyName, (INotifyPropertyChanged)value);
 
             if (value is IReactToCollection)
                 ListenForCollectionReactionsOn(propertyName, value as IReactToCollection);
@@ -444,8 +426,7 @@ namespace INotify.Core
 
             foreach (var reference in _collectionReferenceMap.Where(reference => reference.Value.Equals(sender)))
             {
-                PropertyDependencyDefinitions dependencies;
-                if (ReferencedCollectionDependencies.TryGetValue(reference.Key, out dependencies))
+                if (ReferencedCollectionDependencies.TryGetValue(reference.Key, out PropertyDependencyDefinitions dependencies))
                 {
                     var session = StartSession();
                     RaiseDependencies(session, dependencies);
@@ -463,8 +444,7 @@ namespace INotify.Core
 
             foreach (var reference in _propertyReferenceMap.Where(reference => reference.Value.Equals(sender)))
             {
-                PropertyDependenciesDictionary dependencies;
-                if (ReferencedPropertyDependencies.TryGetValue(reference.Key, out dependencies))
+                if (ReferencedPropertyDependencies.TryGetValue(reference.Key, out PropertyDependenciesDictionary dependencies))
                 {
                     var session = StartSession();
                     RaiseDependencies(session, args.PropertyName, dependencies);
@@ -480,16 +460,13 @@ namespace INotify.Core
             if (sender == this)
                 RaiseDependencies(args.Session, args.PropertyName, LocalPropertyDependencies);
             else if (sender is Notifier)
-            {
                 foreach (var reference in _propertyReferenceMap.Where(reference => reference.Value.Equals(sender)))
                 {
-                    PropertyDependenciesDictionary dependencies;
-                    if (ReferencedPropertyDependencies.TryGetValue(reference.Key, out dependencies))
+                    if (ReferencedPropertyDependencies.TryGetValue(reference.Key, out PropertyDependenciesDictionary dependencies))
                         RaiseDependencies(args.Session, args.PropertyName, dependencies);
 
                     break;
                 }
-            }
         }
 
         #endregion
@@ -526,8 +503,7 @@ namespace INotify.Core
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property)
-                where TColl : IReactToCollectionItemProperty
+            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             {
                 _notifier.LocalPropertyDependencies.Get(reference.GetName())
                          .Affects(_dependentPropertyName);
@@ -546,8 +522,7 @@ namespace INotify.Core
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property)
-                where TRef : INotifyPropertyChanged where TInst : TRef
+            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged where TInst : TRef
             {
                 _notifier.LocalPropertyDependencies.Get(reference.GetName())
                          .Affects(_dependentPropertyName);
@@ -559,11 +534,10 @@ namespace INotify.Core
 
             public PropertyDependencyMapper OverridesWithoutBaseReference()
             {
-                foreach (var dependency in
-                    _notifier.LocalPropertyDependencies.Concat(_notifier.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                             .Concat(_notifier.ReferencedCollectionDependencies)
-                             .Concat(_notifier.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
-                             .Select(kvp => kvp.Value))
+                foreach (var dependency in _notifier.LocalPropertyDependencies.Concat(_notifier.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                                                    .Concat(_notifier.ReferencedCollectionDependencies)
+                                                    .Concat(_notifier.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                                                    .Select(kvp => kvp.Value))
                     dependency.Free(_dependentPropertyName);
 
                 return this;

@@ -6,13 +6,13 @@ namespace INotify.Core
     {
         #region constructors
 
-        public NotifyingList() {}
+        public NotifyingList() { }
 
         public NotifyingList(int capacity)
-            : base(capacity) {}
+            : base(capacity) { }
 
         public NotifyingList(IEnumerable<T> collection)
-            : base(collection) {}
+            : base(collection) { }
 
         #endregion
     }
