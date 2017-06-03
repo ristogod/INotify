@@ -199,7 +199,7 @@ namespace INotify.Core
 
         object IList.this[int index]
         {
-            get { return this[index]; }
+            get => this[index];
             set
             {
                 try
