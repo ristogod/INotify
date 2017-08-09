@@ -7,6 +7,7 @@ using static System.Windows.Input.CommandManager;
 
 namespace INotify.Core.Commands
 {
+    /// <inheritdoc/>
     /// <summary>
     ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
     ///     return value for the CanExecute method is 'true'.
@@ -22,8 +23,10 @@ namespace INotify.Core.Commands
 
         #region constructors
 
+        /// <inheritdoc/>
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;" /> class and the command can always be
+        ///     Initializes a new instance of the <see cref="T:INotify.Core.Commands.RelayCommand`1"/> class and the command can
+        ///     always be
         ///     executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
@@ -31,7 +34,7 @@ namespace INotify.Core.Commands
             : this(execute, null) { }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;" /> class.
+        ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>
@@ -72,6 +75,7 @@ namespace INotify.Core.Commands
         #endregion
     }
 
+    /// <inheritdoc/>
     /// <summary>
     ///     A command whose sole purpose is to relay its functionality to other objects by invoking delegates. The default
     ///     return value for the CanExecute method is 'true'.
@@ -87,15 +91,17 @@ namespace INotify.Core.Commands
 
         #region constructors
 
+        /// <inheritdoc/>
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class and the command can always be executed.
+        ///     Initializes a new instance of the <see cref="T:INotify.Core.Commands.RelayCommand"/> class and the command can
+        ///     always be executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         public RelayCommand(Action execute)
             : this(execute, null) { }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommand" /> class.
+        ///     Initializes a new instance of the <see cref="RelayCommand"/> class.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>

@@ -12,8 +12,7 @@ namespace INotify.Core.Extensions
                                                                                                                              where pair.Value.Equals(value)
                                                                                                                              select pair.Key;
 
-        public static TKey FindKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value) => dictionary.SingleOrDefault(pair => pair.Value.Equals(value))
-                                                                                                                      .Key;
+        public static TKey FindKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value) => dictionary.SingleOrDefault(pair => pair.Value.Equals(value)).Key;
 
         public static IEnumerable<TValue> GetValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary) => from pair in dictionary
                                                                                                                select pair.Value;
