@@ -51,18 +51,21 @@ namespace INotify.Core
         protected NotifyingCollection()
         {
             Construct();
+
             _list = new List<T>();
         }
 
         protected NotifyingCollection(int capacity)
         {
             Construct();
+
             _list = new List<T>(capacity);
         }
 
         protected NotifyingCollection(IEnumerable<T> collection)
         {
             Construct();
+
             _list = new List<T>(collection);
             _list.ForEach(ListenToChild);
         }
@@ -158,7 +161,12 @@ namespace INotify.Core
         }
 
         public int Count => _list.Count;
-        public T FirstItem => GetValue(() => FirstItem, () => Count > 0 ? this[0] : default(T));
+
+        public T FirstItem =>
+            GetValue(() => FirstItem,
+                     () => Count > 0
+                               ? this[0]
+                               : default);
 
         public virtual T this[int index]
         {
@@ -183,7 +191,12 @@ namespace INotify.Core
             }
         }
 
-        public T LastItem => GetValue(() => LastItem, () => Count > 0 ? this[Count - 1] : default(T));
+        public T LastItem =>
+            GetValue(() => LastItem,
+                     () => Count > 0
+                               ? this[Count - 1]
+                               : default);
+
         bool IList.IsFixedSize => ((IList)_list).IsFixedSize;
         bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
         bool IList.IsReadOnly => ((IList)_list).IsReadOnly;
@@ -556,16 +569,18 @@ namespace INotify.Core
 
         protected void CheckReentrancy()
         {
-            if (!_monitor.Busy || _collectionChanged == null || _collectionChanged.GetInvocationList().Length <= 1)
+            if (!_monitor.Busy
+                || _collectionChanged == null
+                || _collectionChanged.GetInvocationList()
+                                     .Length
+                <= 1)
                 return;
 
             throw new InvalidOperationException("Collection Reentrancy Not Allowed");
         }
 
         protected PropertyDependencyDefinitions CollectionChange() => _localCollectionDependencies;
-
-        protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TItem, TProp>(Expression<Func<TItem, TProp>> property) =>
-            _localCollectionItemsDependencies.Get(property.GetName());
+        protected PropertyDependencyDefinitions CollectionItemPropertyChangedFor<TItem, TProp>(Expression<Func<TItem, TProp>> property) => _localCollectionItemsDependencies.Get(property.GetName());
 
         protected void GroupNotifications(ReactToCollectionEventArgs substitution, Action action)
         {
@@ -605,6 +620,7 @@ namespace INotify.Core
             }
         }
 
+        [SuppressMessage("ReSharper", "ConvertIfStatementToSwitchStatement")]
         static bool Equals(T a, T b)
         {
             if (a == null && b == null)
@@ -618,8 +634,7 @@ namespace INotify.Core
 
         static void QuietItemWhile(T item, Action<T> action)
         {
-            var notifyEnabling = item as INotifyEnabling;
-            if (notifyEnabling != null)
+            if (item is INotifyEnabling notifyEnabling)
             {
                 notifyEnabling.DisableNotifications();
                 action(item);
@@ -698,8 +713,10 @@ namespace INotify.Core
 
         void Construct()
         {
-            PropertyOf(() => FirstItem).DependsOnProperty(() => Count);
-            PropertyOf(() => LastItem).DependsOnProperty(() => Count);
+            PropertyOf(() => FirstItem)
+                .DependsOnProperty(() => Count);
+            PropertyOf(() => LastItem)
+                .DependsOnProperty(() => Count);
 
             _monitor = new SimpleMonitor();
             _reactToCollection += RespondToCollectionReactions;
@@ -723,10 +740,15 @@ namespace INotify.Core
 
         void IgnoreChild(T child)
         {
-            if (child is Notifier)
-                IgnoreCollectionItemPropertyReactionsOn(child as Notifier);
-            else if (child is INotifyPropertyChanged notifyPropertyChanged)
-                IgnoreCollectionItemPropertyChangesOn(notifyPropertyChanged);
+            switch (child)
+            {
+                case Notifier notifier:
+                    IgnoreCollectionItemPropertyReactionsOn(notifier);
+                    break;
+                case INotifyPropertyChanged notifyPropertyChanged:
+                    IgnoreCollectionItemPropertyChangesOn(notifyPropertyChanged);
+                    break;
+            }
         }
 
         void IgnoreCollectionItemPropertyChangesOn(INotifyPropertyChanged listened)
@@ -759,10 +781,15 @@ namespace INotify.Core
 
         void ListenToChild(T child)
         {
-            if (child is Notifier)
-                ListenForCollectionItemPropertyReactionsOn(child as Notifier);
-            else if (child is INotifyPropertyChanged notifyPropertyChanged)
-                ListenForCollectionItemPropertyChangesOn(notifyPropertyChanged);
+            switch (child)
+            {
+                case Notifier notifier:
+                    ListenForCollectionItemPropertyReactionsOn(notifier);
+                    break;
+                case INotifyPropertyChanged notifyPropertyChanged:
+                    ListenForCollectionItemPropertyChangesOn(notifyPropertyChanged);
+                    break;
+            }
         }
 
         void IReactToCollection.OnCollectionChanged(NotifyCollectionChangedEventArgs args)
@@ -811,8 +838,7 @@ namespace INotify.Core
             EndSession(session);
         }
 
-        void RespondToChildPropertyReactions(object sender, ReactToPropertyEventArgs args) =>
-            OnCollectionItemPropertyReaction(new ReactToCollectionItemPropertyEventArgs(sender as Notifier, args));
+        void RespondToChildPropertyReactions(object sender, ReactToPropertyEventArgs args) => OnCollectionItemPropertyReaction(new ReactToCollectionItemPropertyEventArgs(sender as Notifier, args));
 
         #endregion
 
@@ -841,55 +867,68 @@ namespace INotify.Core
 
             public PropertyDependencyMapper DependsOnCollection<TColl>(Expression<Func<TColl>> property) where TColl : INotifyCollectionChanged
             {
-                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
-                _notifyingCollection.ReferencedCollectionDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionDependencies.Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property)
-                where TColl : IReactToCollectionItemProperty
+            public PropertyDependencyMapper DependsOnCollectionItemProperty<TColl, TItem, TProp>(Expression<Func<TColl>> reference, Expression<Func<TItem, TProp>> property) where TColl : IReactToCollectionItemProperty
             {
-                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
-                _notifyingCollection.ReferencedCollectionDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
-                _notifyingCollection.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName())
+                                    .Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionDependencies.Get(reference.GetName())
+                                    .Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName())
+                                    .Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+
                 return this;
             }
 
             public PropertyDependencyMapper DependsOnProperty<TProp>(Expression<Func<TProp>> property)
             {
-                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.LocalPropertyDependencies.Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+
                 return this;
             }
 
-            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property)
-                where TRef : INotifyPropertyChanged
-                where TInst : TRef
+            public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged
+                                                                                                                                                                      where TInst : TRef
             {
-                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName()).Affects(_dependentPropertyName);
-                _notifyingCollection.ReferencedPropertyDependencies.Retrieve(reference.GetName()).Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName())
+                                    .Affects(_dependentPropertyName);
+                _notifyingCollection.ReferencedPropertyDependencies.Retrieve(reference.GetName())
+                                    .Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+
                 return this;
             }
 
             public PropertyDependencyMapper DependsOnThisCollection()
             {
                 _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName);
+
                 return this;
             }
 
             public PropertyDependencyMapper DependsOnThisCollectionItemProperty<TItem, TProp>(Expression<Func<TItem, TProp>> property)
             {
                 _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName);
-                _notifyingCollection._localCollectionItemsDependencies.Get(property.GetName()).Affects(_dependentPropertyName);
+                _notifyingCollection._localCollectionItemsDependencies.Get(property.GetName())
+                                    .Affects(_dependentPropertyName);
+
                 return this;
             }
 
             public PropertyDependencyMapper OverridesWithoutBaseReference()
             {
-                foreach (var dependency in _notifyingCollection.LocalPropertyDependencies
-                                                               .Concat(_notifyingCollection.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
+                foreach (var dependency in _notifyingCollection.LocalPropertyDependencies.Concat(_notifyingCollection.ReferencedPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
                                                                .Concat(_notifyingCollection.ReferencedCollectionDependencies)
-                                                               .Concat(_notifyingCollection.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies =>
-                                                                                                                                                        referencedDependencies.Value))
+                                                               .Concat(_notifyingCollection.ReferencedCollectionItemPropertyDependencies.SelectMany(referencedDependencies => referencedDependencies.Value))
                                                                .Concat(_notifyingCollection._localCollectionItemsDependencies)
                                                                .Select(kvp => kvp.Value)
                                                                .Concat(new[]
@@ -907,7 +946,6 @@ namespace INotify.Core
 #if NET40
         [Serializable]
 #endif
-
         class SimpleMonitor : IDisposable
         {
             #region fields
