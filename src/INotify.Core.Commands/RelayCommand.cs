@@ -30,8 +30,7 @@ namespace INotify.Core.Commands
         ///     executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
-        public RelayCommand(Action<T> execute)
-            : this(execute, null) { }
+        public RelayCommand(Action<T> execute) : this(execute, null) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand&lt;T&gt;"/> class.
@@ -97,8 +96,7 @@ namespace INotify.Core.Commands
         ///     always be executed.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
-        public RelayCommand(Action execute)
-            : this(execute, null) { }
+        public RelayCommand(Action execute) : this(execute, null) { }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="RelayCommand"/> class.

@@ -1,11 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net40</TargetFramework>
+    <TargetFrameworks>net40;net47</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <AssemblyVersion>2.0.2018.801</AssemblyVersion>
+    <FileVersion>2.0.2018.801</FileVersion>
+    <Authors>Nate Risto</Authors>
     <AssemblyName>INotify.Core.Commands</AssemblyName>
     <PackageId>INotify.Core.Commands</PackageId>
     <PackageTags>INotifyPropertyChanged;INotifyCollectionChanged</PackageTags>
-    <PackageReleaseNotes>Seperated from INotify</PackageReleaseNotes>
+    <PackageReleaseNotes>Separated from INotify</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/ristogod/INotify</PackageProjectUrl>
     <PackageLicenseUrl>http://www.gnu.org/licenses/gpl.txt</PackageLicenseUrl>
     <RepositoryType>git</RepositoryType>
@@ -13,17 +17,16 @@
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>2.0.0</Version>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\INotify.Core\INotify.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+  
+  <ItemGroup>    
     <Reference Include="PresentationCore" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="INotify.Core" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
