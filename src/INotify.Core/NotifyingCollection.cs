@@ -29,9 +29,9 @@ namespace INotify.Core
 
         const string CAPACITY = "Capacity";
         const string COUNT = "Count";
-        const string FIRSTITEM = "FirstItem";
+        const string FIRST_ITEM = "FirstItem";
         const string ITEM = "Item[]";
-        const string LASTITEM = "LastItem";
+        const string LAST_ITEM = "LastItem";
         readonly List<NotifyCollectionChangedEventHandler> _collectionChangedSubscribers = new List<NotifyCollectionChangedEventHandler>();
         readonly List<T> _list;
         readonly PropertyDependencyDefinitions _localCollectionDependencies = new PropertyDependencyDefinitions();
@@ -131,13 +131,13 @@ namespace INotify.Core
             }
         }
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
         event NotifyCollectionChangedEventHandler _collectionChanged;
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
         event ReactToCollectionEventHandler _reactToCollection;
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
         event ReactToCollectionItemPropertyEventHandler _reactToCollectionItemProperty;
 
         #endregion
@@ -151,6 +151,7 @@ namespace INotify.Core
             {
                 var oldValue = _list.Capacity;
                 _list.Capacity = value;
+
                 if (oldValue == value)
                     return;
 
@@ -174,6 +175,7 @@ namespace INotify.Core
             set
             {
                 var session = StartSession();
+
                 CheckPropertyEnds(session,
                                   () =>
                                   {
@@ -202,6 +204,7 @@ namespace INotify.Core
         bool IList.IsReadOnly => ((IList)_list).IsReadOnly;
         bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
 
+        [SuppressMessage("ReSharper", "UncatchableException", Justification = "Wanted to provide our own specific message.")]
         object IList.this[int index]
         {
             get => this[index];
@@ -228,6 +231,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -249,6 +253,7 @@ namespace INotify.Core
                 throw new ArgumentNullException(nameof(collection));
 
             var session = StartSession();
+
             GroupNotifications(new ReactToCollectionEventArgs(session, Reset),
                                () =>
                                {
@@ -267,6 +272,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -311,6 +317,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -332,6 +339,7 @@ namespace INotify.Core
 
             var session = StartSession();
             var list = collection as IList<T> ?? collection.ToList();
+
             GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, list, index),
                                () =>
                                {
@@ -353,6 +361,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             var removed = CheckPropertyEnds(session,
                                             () =>
                                             {
@@ -366,9 +375,11 @@ namespace INotify.Core
                                                 OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, item, index));
                                                 OnReactToProperty(session, ITEM);
                                                 OnReactToProperty(session, COUNT);
+
                                                 return true;
                                             });
             EndSession(session);
+
             return removed;
         }
 
@@ -377,6 +388,7 @@ namespace INotify.Core
             var removed = _list.FindAll(match);
             var count = 0;
             var session = StartSession();
+
             GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
                                {
@@ -387,6 +399,7 @@ namespace INotify.Core
                                                    });
                                });
             EndSession(session);
+
             return count;
         }
 
@@ -394,6 +407,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -421,10 +435,12 @@ namespace INotify.Core
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             var removed = new List<T>();
+
             for (var current = 0; current < count; current++)
                 removed.Add(this[index + current]);
 
             var session = StartSession();
+
             GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
                                {
@@ -438,6 +454,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -462,6 +479,7 @@ namespace INotify.Core
 
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -477,6 +495,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -492,6 +511,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -507,6 +527,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -522,6 +543,7 @@ namespace INotify.Core
         {
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -564,6 +586,7 @@ namespace INotify.Core
         protected IDisposable BlockReentrancy()
         {
             _monitor.Enter();
+
             return _monitor;
         }
 
@@ -601,6 +624,7 @@ namespace INotify.Core
             {
                 _suspendedCollectionReactions = new ConcurrentQueue<ReactToCollectionEventArgs>();
                 _suspendedCollectionReactions.Enqueue(_substituteReactToCollectionEventArgs);
+
                 foreach (var pc in _suspendedPropertyReactions)
                     pc.Session = _substituteReactToCollectionEventArgs.Session;
             }
@@ -620,7 +644,7 @@ namespace INotify.Core
             }
         }
 
-        [SuppressMessage("ReSharper", "ConvertIfStatementToSwitchStatement")]
+        [SuppressMessage("ReSharper", "ConvertIfStatementToSwitchStatement", Justification = "Unnecessary Complication")]
         static bool Equals(T a, T b)
         {
             if (a == null && b == null)
@@ -647,11 +671,13 @@ namespace INotify.Core
         int IList.Add(object item)
         {
             var index = -1;
+
             if (!(item is T t))
                 return index;
 
             CheckReentrancy();
             var session = StartSession();
+
             CheckPropertyEnds(session,
                               () =>
                               {
@@ -683,10 +709,10 @@ namespace INotify.Core
             action();
 
             if (!Equals(FirstItem, firstItem))
-                OnReactToProperty(session, FIRSTITEM);
+                OnReactToProperty(session, FIRST_ITEM);
 
             if (!Equals(LastItem, lastItem))
-                OnReactToProperty(session, LASTITEM);
+                OnReactToProperty(session, LAST_ITEM);
         }
 
         TReturn CheckPropertyEnds<TReturn>(long session, Func<TReturn> function)
@@ -703,10 +729,10 @@ namespace INotify.Core
             var r = function();
 
             if (!Equals(FirstItem, firstItem))
-                OnReactToProperty(session, FIRSTITEM);
+                OnReactToProperty(session, FIRST_ITEM);
 
             if (!Equals(LastItem, lastItem))
-                OnReactToProperty(session, LASTITEM);
+                OnReactToProperty(session, LAST_ITEM);
 
             return r;
         }
@@ -715,6 +741,7 @@ namespace INotify.Core
         {
             PropertyOf(() => FirstItem)
                 .DependsOnProperty(() => Count);
+
             PropertyOf(() => LastItem)
                 .DependsOnProperty(() => Count);
 
@@ -744,9 +771,11 @@ namespace INotify.Core
             {
                 case Notifier notifier:
                     IgnoreCollectionItemPropertyReactionsOn(notifier);
+
                     break;
                 case INotifyPropertyChanged notifyPropertyChanged:
                     IgnoreCollectionItemPropertyChangesOn(notifyPropertyChanged);
+
                     break;
             }
         }
@@ -785,9 +814,11 @@ namespace INotify.Core
             {
                 case Notifier notifier:
                     ListenForCollectionItemPropertyReactionsOn(notifier);
+
                     break;
                 case INotifyPropertyChanged notifyPropertyChanged:
                     ListenForCollectionItemPropertyChangesOn(notifyPropertyChanged);
+
                     break;
             }
         }
@@ -798,6 +829,7 @@ namespace INotify.Core
                 return;
 
             var disposable = BlockReentrancy();
+
             using (disposable)
                 _collectionChanged?.Invoke(this, args);
         }
@@ -823,6 +855,7 @@ namespace INotify.Core
                     return;
 
                 var disposable = BlockReentrancy();
+
                 using (disposable)
                     _reactToCollection?.Invoke(this, args);
             }
@@ -869,6 +902,7 @@ namespace INotify.Core
             {
                 _notifyingCollection.LocalPropertyDependencies.Get(property.GetName())
                                     .Affects(_dependentPropertyName);
+
                 _notifyingCollection.ReferencedCollectionDependencies.Get(property.GetName())
                                     .Affects(_dependentPropertyName);
 
@@ -879,8 +913,10 @@ namespace INotify.Core
             {
                 _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName())
                                     .Affects(_dependentPropertyName);
+
                 _notifyingCollection.ReferencedCollectionDependencies.Get(reference.GetName())
                                     .Affects(_dependentPropertyName);
+
                 _notifyingCollection.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName())
                                     .Get(property.GetName())
                                     .Affects(_dependentPropertyName);
@@ -901,6 +937,7 @@ namespace INotify.Core
             {
                 _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName())
                                     .Affects(_dependentPropertyName);
+
                 _notifyingCollection.ReferencedPropertyDependencies.Retrieve(reference.GetName())
                                     .Get(property.GetName())
                                     .Affects(_dependentPropertyName);
@@ -918,6 +955,7 @@ namespace INotify.Core
             public PropertyDependencyMapper DependsOnThisCollectionItemProperty<TItem, TProp>(Expression<Func<TItem, TProp>> property)
             {
                 _notifyingCollection._localCollectionDependencies.Affects(_dependentPropertyName);
+
                 _notifyingCollection._localCollectionItemsDependencies.Get(property.GetName())
                                     .Affects(_dependentPropertyName);
 

@@ -82,10 +82,10 @@ namespace INotify.Core
             }
         }
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
         event PropertyChangedEventHandler _propertyChanged;
 
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
         event ReactToPropertyEventHandler _reactToProperty;
 
         #endregion
@@ -116,6 +116,7 @@ namespace INotify.Core
                 return;
 
             var args = new ReactToPropertyEventArgs(session, propertyName);
+
             if (!PropertySessions.TrackReaction(this, args))
                 return;
 
@@ -287,6 +288,7 @@ namespace INotify.Core
             foreach (var propertyNotification in propertyNotifications)
             {
                 var notifier = propertyNotification.Key;
+
                 if (!notifier.IsNotificationsEnabled)
                     continue;
 
@@ -322,9 +324,11 @@ namespace INotify.Core
             {
                 case Notifier notifier:
                     IgnorePropertyReactionsOn(propertyName, notifier);
+
                     break;
                 case INotifyPropertyChanged notifyPropertyChanged:
                     IgnorePropertyChangesOn(propertyName, notifyPropertyChanged);
+
                     break;
             }
 
@@ -332,9 +336,11 @@ namespace INotify.Core
             {
                 case IReactToCollection reactToCollection:
                     IgnoreCollectionReactionsOn(propertyName, reactToCollection);
+
                     break;
                 case INotifyCollectionChanged notifyCollectionChanged:
                     IgnoreCollectionChangesOn(propertyName, notifyCollectionChanged);
+
                     break;
             }
 
@@ -433,9 +439,11 @@ namespace INotify.Core
             {
                 case Notifier notifier:
                     ListenForPropertyReactionsOn(propertyName, notifier);
+
                     break;
                 case INotifyPropertyChanged notifyPropertyChanged:
                     ListenForPropertyChangesOn(propertyName, notifyPropertyChanged);
+
                     break;
             }
 
@@ -443,9 +451,11 @@ namespace INotify.Core
             {
                 case IReactToCollection reactToCollection:
                     ListenForCollectionReactionsOn(propertyName, reactToCollection);
+
                     break;
                 case INotifyCollectionChanged notifyCollectionChanged:
                     ListenForCollectionChangesOn(propertyName, notifyCollectionChanged);
+
                     break;
             }
 
@@ -536,6 +546,7 @@ namespace INotify.Core
             {
                 _notifier.LocalPropertyDependencies.Get(property.GetName())
                          .Affects(_dependentPropertyName);
+
                 _notifier.ReferencedCollectionDependencies.Get(property.GetName())
                          .Affects(_dependentPropertyName);
 
@@ -546,8 +557,10 @@ namespace INotify.Core
             {
                 _notifier.LocalPropertyDependencies.Get(reference.GetName())
                          .Affects(_dependentPropertyName);
+
                 _notifier.ReferencedCollectionDependencies.Get(reference.GetName())
                          .Affects(_dependentPropertyName);
+
                 _notifier.ReferencedCollectionItemPropertyDependencies.Retrieve(reference.GetName())
                          .Get(property.GetName())
                          .Affects(_dependentPropertyName);
@@ -568,6 +581,7 @@ namespace INotify.Core
             {
                 _notifier.LocalPropertyDependencies.Get(reference.GetName())
                          .Affects(_dependentPropertyName);
+
                 _notifier.ReferencedPropertyDependencies.Retrieve(reference.GetName())
                          .Get(property.GetName())
                          .Affects(_dependentPropertyName);

@@ -36,6 +36,7 @@ namespace INotify.Core.Internal
         internal PropertyDependencyDefinitions Affects(string property)
         {
             var propertyName = List.SingleOrDefault(p => p.Equals(property));
+
             if (propertyName != null)
                 return this;
 

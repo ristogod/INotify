@@ -18,6 +18,7 @@ namespace INotify.Core.Dictionaries
         public T Remove(string referenceName)
         {
             var outValue = default(T);
+
             if (referenceName != null)
                 TryRemove(referenceName, out outValue);
 

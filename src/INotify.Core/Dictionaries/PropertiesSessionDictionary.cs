@@ -13,6 +13,7 @@ namespace INotify.Core.Dictionaries
                 return false;
 
             var tracked = true;
+
             AddOrUpdate(args.Session,
                         sessionKey =>
                         {
