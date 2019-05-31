@@ -326,6 +326,7 @@ namespace INotify.Core
                     IgnorePropertyReactionsOn(propertyName, notifier);
 
                     break;
+
                 case INotifyPropertyChanged notifyPropertyChanged:
                     IgnorePropertyChangesOn(propertyName, notifyPropertyChanged);
 
@@ -338,6 +339,7 @@ namespace INotify.Core
                     IgnoreCollectionReactionsOn(propertyName, reactToCollection);
 
                     break;
+
                 case INotifyCollectionChanged notifyCollectionChanged:
                     IgnoreCollectionChangesOn(propertyName, notifyCollectionChanged);
 
@@ -441,6 +443,7 @@ namespace INotify.Core
                     ListenForPropertyReactionsOn(propertyName, notifier);
 
                     break;
+
                 case INotifyPropertyChanged notifyPropertyChanged:
                     ListenForPropertyChangesOn(propertyName, notifyPropertyChanged);
 
@@ -453,6 +456,7 @@ namespace INotify.Core
                     ListenForCollectionReactionsOn(propertyName, reactToCollection);
 
                     break;
+
                 case INotifyCollectionChanged notifyCollectionChanged:
                     ListenForCollectionChangesOn(propertyName, notifyCollectionChanged);
 

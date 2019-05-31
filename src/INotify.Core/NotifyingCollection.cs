@@ -773,6 +773,7 @@ namespace INotify.Core
                     IgnoreCollectionItemPropertyReactionsOn(notifier);
 
                     break;
+
                 case INotifyPropertyChanged notifyPropertyChanged:
                     IgnoreCollectionItemPropertyChangesOn(notifyPropertyChanged);
 
@@ -816,6 +817,7 @@ namespace INotify.Core
                     ListenForCollectionItemPropertyReactionsOn(notifier);
 
                     break;
+
                 case INotifyPropertyChanged notifyPropertyChanged:
                     ListenForCollectionItemPropertyChangesOn(notifyPropertyChanged);
 

@@ -14,7 +14,7 @@
     <PackageTags>INotifyPropertyChanged;INotifyCollectionChanged</PackageTags>
     <PackageReleaseNotes>Converted to .NET Standard</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/ristogod/INotify</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.gnu.org/licenses/gpl.txt</PackageLicenseUrl>
+    <PackageLicense>http://www.gnu.org/licenses/gpl.txt</PackageLicense>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/ristogod/INotify</RepositoryUrl>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
