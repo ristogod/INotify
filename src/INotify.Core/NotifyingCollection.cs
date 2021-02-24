@@ -20,9 +20,6 @@ using static System.Collections.Specialized.NotifyCollectionChangedAction;
 namespace INotify.Core
 {
     [DebuggerDisplay(nameof(Count) + " = {" + nameof(Count) + "}")]
-#if NET40
-    [Serializable]
-#endif
     public abstract class NotifyingCollection<T> : Notifier, IList<T>, IList, IReactToCollection, IReactToCollectionItemProperty
     {
         #region fields
@@ -32,17 +29,17 @@ namespace INotify.Core
         const string FIRST_ITEM = "FirstItem";
         const string ITEM = "Item[]";
         const string LAST_ITEM = "LastItem";
-        readonly List<NotifyCollectionChangedEventHandler> _collectionChangedSubscribers = new List<NotifyCollectionChangedEventHandler>();
+        readonly List<NotifyCollectionChangedEventHandler> _collectionChangedSubscribers = new();
         readonly List<T> _list;
-        readonly PropertyDependencyDefinitions _localCollectionDependencies = new PropertyDependencyDefinitions();
-        readonly PropertyDependenciesDictionary _localCollectionItemsDependencies = new PropertyDependenciesDictionary();
-        readonly List<ReactToCollectionItemPropertyEventHandler> _reactToCollectionItemPropertySubscribers = new List<ReactToCollectionItemPropertyEventHandler>();
-        readonly List<ReactToCollectionEventHandler> _reactToCollectionSubscribers = new List<ReactToCollectionEventHandler>();
-        readonly ConcurrentQueue<ReactToPropertyEventArgs> _suspendedPropertyReactions = new ConcurrentQueue<ReactToPropertyEventArgs>();
+        readonly PropertyDependencyDefinitions _localCollectionDependencies = new();
+        readonly PropertyDependenciesDictionary _localCollectionItemsDependencies = new();
+        readonly SimpleMonitor _monitor;
+        readonly List<ReactToCollectionItemPropertyEventHandler> _reactToCollectionItemPropertySubscribers = new();
+        readonly List<ReactToCollectionEventHandler> _reactToCollectionSubscribers = new();
+        readonly ConcurrentQueue<ReactToPropertyEventArgs> _suspendedPropertyReactions = new();
         bool _isReactionsSuspended;
-        SimpleMonitor _monitor;
-        ReactToCollectionEventArgs _substituteReactToCollectionEventArgs;
-        ConcurrentQueue<ReactToCollectionEventArgs> _suspendedCollectionReactions = new ConcurrentQueue<ReactToCollectionEventArgs>();
+        ReactToCollectionEventArgs? _substituteReactToCollectionEventArgs;
+        ConcurrentQueue<ReactToCollectionEventArgs> _suspendedCollectionReactions = new();
 
         #endregion
 
@@ -50,23 +47,45 @@ namespace INotify.Core
 
         protected NotifyingCollection()
         {
-            Construct();
+            PropertyOf(() => FirstItem)
+                .DependsOnProperty(() => Count);
 
-            _list = new List<T>();
+            PropertyOf(() => LastItem)
+                .DependsOnProperty(() => Count);
+
+            _reactToCollection += RespondToCollectionReactions;
+            _reactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
+
+            (_monitor, _list) = (new(), new());
         }
 
         protected NotifyingCollection(int capacity)
         {
-            Construct();
+            PropertyOf(() => FirstItem)
+                .DependsOnProperty(() => Count);
 
-            _list = new List<T>(capacity);
+            PropertyOf(() => LastItem)
+                .DependsOnProperty(() => Count);
+
+            _reactToCollection += RespondToCollectionReactions;
+            _reactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
+
+            (_monitor, _list) = (new(), new(capacity));
         }
 
         protected NotifyingCollection(IEnumerable<T> collection)
         {
-            Construct();
+            PropertyOf(() => FirstItem)
+                .DependsOnProperty(() => Count);
 
-            _list = new List<T>(collection);
+            PropertyOf(() => LastItem)
+                .DependsOnProperty(() => Count);
+
+            _reactToCollection += RespondToCollectionReactions;
+            _reactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
+
+            (_monitor, _list) = (new(), new(collection));
+
             _list.ForEach(ListenToChild);
         }
 
@@ -80,11 +99,11 @@ namespace INotify.Core
 
         #region events
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged
+        public event NotifyCollectionChangedEventHandler? CollectionChanged
         {
             add
             {
-                if (_collectionChangedSubscribers.Contains(value))
+                if (value is null || _collectionChangedSubscribers.Contains(value))
                     return;
 
                 _collectionChanged += value;
@@ -92,16 +111,19 @@ namespace INotify.Core
             }
             remove
             {
+                if (value is null)
+                    return;
+
                 _collectionChanged -= value;
                 _collectionChangedSubscribers.Remove(value);
             }
         }
 
-        public event ReactToCollectionEventHandler ReactToCollection
+        public event ReactToCollectionEventHandler? ReactToCollection
         {
             add
             {
-                if (_reactToCollectionSubscribers.Contains(value))
+                if (value is null || _reactToCollectionSubscribers.Contains(value))
                     return;
 
                 _reactToCollection += value;
@@ -109,16 +131,19 @@ namespace INotify.Core
             }
             remove
             {
+                if (value is null)
+                    return;
+
                 _reactToCollection -= value;
                 _reactToCollectionSubscribers.Remove(value);
             }
         }
 
-        public event ReactToCollectionItemPropertyEventHandler ReactToCollectionItemProperty
+        public event ReactToCollectionItemPropertyEventHandler? ReactToCollectionItemProperty
         {
             add
             {
-                if (_reactToCollectionItemPropertySubscribers.Contains(value))
+                if (value is null || _reactToCollectionItemPropertySubscribers.Contains(value))
                     return;
 
                 _reactToCollectionItemProperty += value;
@@ -126,19 +151,22 @@ namespace INotify.Core
             }
             remove
             {
+                if (value is null)
+                    return;
+
                 _reactToCollectionItemProperty -= value;
                 _reactToCollectionItemPropertySubscribers.Remove(value);
             }
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
-        event NotifyCollectionChangedEventHandler _collectionChanged;
+        event NotifyCollectionChangedEventHandler? _collectionChanged;
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
-        event ReactToCollectionEventHandler _reactToCollection;
+        event ReactToCollectionEventHandler? _reactToCollection;
 
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Event is Private.")]
-        event ReactToCollectionItemPropertyEventHandler _reactToCollectionItemProperty;
+        event ReactToCollectionItemPropertyEventHandler? _reactToCollectionItemProperty;
 
         #endregion
 
@@ -165,9 +193,9 @@ namespace INotify.Core
 
         public T FirstItem =>
             GetValue(() => FirstItem,
-                     () => Count > 0
+                     () => Count is > 0
                                ? this[0]
-                               : default);
+                               : default!);
 
         public virtual T this[int index]
         {
@@ -185,7 +213,7 @@ namespace INotify.Core
                                       IgnoreChild(oldValue);
                                       ListenToChild(value);
 
-                                      OnReactToCollection(new ReactToCollectionEventArgs(session, Replace, value, oldValue, index));
+                                      OnReactToCollection(new(session, Replace, value, oldValue, index));
                                       OnReactToProperty(session, ITEM);
                                       OnReactToProperty(session, COUNT);
                                   });
@@ -195,9 +223,9 @@ namespace INotify.Core
 
         public T LastItem =>
             GetValue(() => LastItem,
-                     () => Count > 0
+                     () => Count is > 0
                                ? this[Count - 1]
-                               : default);
+                               : default!);
 
         bool IList.IsFixedSize => ((IList)_list).IsFixedSize;
         bool ICollection<T>.IsReadOnly => ((ICollection<T>)_list).IsReadOnly;
@@ -205,18 +233,18 @@ namespace INotify.Core
         bool ICollection.IsSynchronized => ((ICollection)_list).IsSynchronized;
 
         [SuppressMessage("ReSharper", "UncatchableException", Justification = "Wanted to provide our own specific message.")]
-        object IList.this[int index]
+        object? IList.this[int index]
         {
             get => this[index];
             set
             {
                 try
                 {
-                    this[index] = (T)value;
+                    this[index] = (T)value!;
                 }
                 catch (InvalidCastException invalidCastException)
                 {
-                    throw new InvalidCastException($"{value.GetType()} cannot be converted to {typeof(T)}", invalidCastException);
+                    throw new InvalidCastException($"{value!.GetType()} cannot be converted to {typeof(T)}", invalidCastException);
                 }
             }
         }
@@ -240,7 +268,7 @@ namespace INotify.Core
 
                                   ListenToChild(item);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -249,12 +277,12 @@ namespace INotify.Core
 
         public virtual void AddRange(IEnumerable<T> collection)
         {
-            if (collection == null)
+            if (collection is null)
                 throw new ArgumentNullException(nameof(collection));
 
             var session = StartSession();
 
-            GroupNotifications(new ReactToCollectionEventArgs(session, Reset),
+            GroupNotifications(new(session, Reset),
                                () =>
                                {
                                    foreach (var item in collection)
@@ -282,7 +310,7 @@ namespace INotify.Core
                                   foreach (var value in oldValues)
                                       IgnoreChild(value);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -290,25 +318,22 @@ namespace INotify.Core
         }
 
         public bool Contains(T item) => _list.Contains(item);
-#if NET40
-        public NotifyingList<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter) => new NotifyingList<TOutput>(_list.ConvertAll(converter));
-#endif
         public virtual void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
         public virtual void CopyTo(T[] array) => _list.CopyTo(array);
         public virtual void CopyTo(int index, T[] array, int arrayIndex, int count) => _list.CopyTo(index, array, arrayIndex, count);
         public bool Exists(Predicate<T> match) => _list.Exists(match);
-        public T Find(Predicate<T> match) => _list.Find(match);
-        public NotifyingList<T> FindAll(Predicate<T> match) => new NotifyingList<T>(_list.FindAll(match));
+        public T? Find(Predicate<T> match) => _list.Find(match);
+        public NotifyingList<T> FindAll(Predicate<T> match) => new(_list.FindAll(match));
         public int FindIndex(Predicate<T> match) => _list.FindIndex(match);
         public int FindIndex(int startIndex, Predicate<T> match) => _list.FindIndex(startIndex, match);
         public int FindIndex(int startIndex, int count, Predicate<T> match) => _list.FindIndex(startIndex, count, match);
-        public T FindLast(Predicate<T> match) => _list.FindLast(match);
+        public T? FindLast(Predicate<T> match) => _list.FindLast(match);
         public int FindLastIndex(Predicate<T> match) => _list.FindLastIndex(match);
         public int FindLastIndex(int startIndex, Predicate<T> match) => _list.FindLastIndex(startIndex, match);
         public int FindLastIndex(int startIndex, int count, Predicate<T> match) => _list.FindLastIndex(startIndex, count, match);
         public void ForEach(Action<T> action) => _list.ForEach(action);
         public List<T>.Enumerator GetEnumerator() => _list.GetEnumerator();
-        public NotifyingList<T> GetRange(int index, int count) => new NotifyingList<T>(_list.GetRange(index, count));
+        public NotifyingList<T> GetRange(int index, int count) => new(_list.GetRange(index, count));
         public int IndexOf(T item) => _list.IndexOf(item);
         public int IndexOf(T item, int index) => _list.IndexOf(item, index);
         public int IndexOf(T item, int index, int count) => _list.IndexOf(item, index, count);
@@ -325,7 +350,7 @@ namespace INotify.Core
 
                                   ListenToChild(item);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -334,13 +359,13 @@ namespace INotify.Core
 
         public virtual void InsertRange(int index, IEnumerable<T> collection)
         {
-            if (collection == null)
+            if (collection is null)
                 throw new ArgumentNullException(nameof(collection));
 
             var session = StartSession();
             var list = collection as IList<T> ?? collection.ToList();
 
-            GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, list, index),
+            GroupNotifications(new(session, NotifyCollectionChangedAction.Add, list, index),
                                () =>
                                {
                                    foreach (var item in list)
@@ -372,7 +397,7 @@ namespace INotify.Core
 
                                                 IgnoreChild(item);
 
-                                                OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, item, index));
+                                                OnReactToCollection(new(session, NotifyCollectionChangedAction.Remove, item, index));
                                                 OnReactToProperty(session, ITEM);
                                                 OnReactToProperty(session, COUNT);
 
@@ -389,7 +414,7 @@ namespace INotify.Core
             var count = 0;
             var session = StartSession();
 
-            GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, removed),
+            GroupNotifications(new(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
                                {
                                    removed.ForEach(item =>
@@ -416,7 +441,7 @@ namespace INotify.Core
 
                                   IgnoreChild(item);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, item, index));
+                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Remove, item, index));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -425,23 +450,23 @@ namespace INotify.Core
 
         public virtual void RemoveRange(int index, int count)
         {
-            if (index < 0)
+            if (index is < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            if (count < 0)
+            if (count is < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             if (index + count > Count)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            var removed = new List<T>();
+            List<T> removed = new();
 
             for (var current = 0; current < count; current++)
                 removed.Add(this[index + current]);
 
             var session = StartSession();
 
-            GroupNotifications(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Remove, removed),
+            GroupNotifications(new(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
                                {
                                    for (var current = 0; current < count; current++)
@@ -460,7 +485,7 @@ namespace INotify.Core
                               {
                                   _list.Reverse();
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -468,10 +493,10 @@ namespace INotify.Core
 
         public virtual void Reverse(int index, int count)
         {
-            if (index < 0)
+            if (index is < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            if (count < 0)
+            if (count is < 0)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             if (index + count > Count)
@@ -485,7 +510,7 @@ namespace INotify.Core
                               {
                                   _list.Reverse(index, count);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -501,7 +526,7 @@ namespace INotify.Core
                               {
                                   _list.Sort();
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -517,7 +542,7 @@ namespace INotify.Core
                               {
                                   _list.Sort(comparison);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -533,7 +558,7 @@ namespace INotify.Core
                               {
                                   _list.Sort(comparer);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -549,7 +574,7 @@ namespace INotify.Core
                               {
                                   _list.Sort(index, count, comparer);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, Reset));
+                                  OnReactToCollection(new(session, Reset));
                                   OnReactToProperty(session, ITEM);
                               });
             EndSession(session);
@@ -559,7 +584,7 @@ namespace INotify.Core
         public void TrimExcess() => _list.TrimExcess();
         public bool TrueForAll(Predicate<T> match) => _list.TrueForAll(match);
 
-        protected internal override void OnReactToProperty(long session, string propertyName)
+        protected internal override void OnReactToProperty(long session, string? propertyName)
         {
             if (_isReactionsSuspended)
                 EnqueueSuspendedNotification(new ReactToPropertyEventArgs(session, propertyName));
@@ -592,14 +617,10 @@ namespace INotify.Core
 
         protected void CheckReentrancy()
         {
-            if (!_monitor.Busy
-                || _collectionChanged == null
-                || _collectionChanged.GetInvocationList()
-                                     .Length
-                <= 1)
-                return;
-
-            throw new InvalidOperationException("Collection Reentrancy Not Allowed");
+            if (_monitor.Busy
+                && _collectionChanged?.GetInvocationList()
+                                     .Length is > 1)
+                throw new InvalidOperationException("Collection Reentrancy Not Allowed");
         }
 
         protected PropertyDependencyDefinitions CollectionChange() => _localCollectionDependencies;
@@ -620,9 +641,9 @@ namespace INotify.Core
 
             _isReactionsSuspended = false;
 
-            if (_substituteReactToCollectionEventArgs != null)
+            if (_substituteReactToCollectionEventArgs is not null)
             {
-                _suspendedCollectionReactions = new ConcurrentQueue<ReactToCollectionEventArgs>();
+                _suspendedCollectionReactions = new();
                 _suspendedCollectionReactions.Enqueue(_substituteReactToCollectionEventArgs);
 
                 foreach (var pc in _suspendedPropertyReactions)
@@ -633,11 +654,11 @@ namespace INotify.Core
             DequeueSuspendedNotifications(_suspendedPropertyReactions, OnReactToProperty);
         }
 
-        protected new PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new PropertyDependencyMapper(property.GetName(), this);
+        protected new PropertyDependencyMapper PropertyOf<TProp>(Expression<Func<TProp>> property) => new(property.GetName(), this);
 
         static void DequeueSuspendedNotifications<TQ>(ConcurrentQueue<TQ> queue, Action<TQ> notifier)
         {
-            while (queue.Count > 0)
+            while (queue.Count is > 0)
             {
                 if (queue.TryDequeue(out var outValue))
                     notifier(outValue);
@@ -645,16 +666,7 @@ namespace INotify.Core
         }
 
         [SuppressMessage("ReSharper", "ConvertIfStatementToSwitchStatement", Justification = "Unnecessary Complication")]
-        static bool Equals(T a, T b)
-        {
-            if (a == null && b == null)
-                return true;
-
-            if (a == null)
-                return false;
-
-            return b != null && a.Equals(b);
-        }
+        static bool Equals(T? a, T? b) => a is null && b is null || a is not null && b is not null && a.Equals(b);
 
         static void QuietItemWhile(T item, Action<T> action)
         {
@@ -668,11 +680,11 @@ namespace INotify.Core
                 action(item);
         }
 
-        int IList.Add(object item)
+        int IList.Add(object? item)
         {
             var index = -1;
 
-            if (!(item is T t))
+            if (item is not T t)
                 return index;
 
             CheckReentrancy();
@@ -686,7 +698,7 @@ namespace INotify.Core
 
                                   ListenToChild(t);
 
-                                  OnReactToCollection(new ReactToCollectionEventArgs(session, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
                                   OnReactToProperty(session, ITEM);
                                   OnReactToProperty(session, COUNT);
                               });
@@ -700,7 +712,7 @@ namespace INotify.Core
             var firstItem = default(T);
             var lastItem = default(T);
 
-            if (Count > 0)
+            if (Count is > 0)
             {
                 firstItem = this[0];
                 lastItem = this[Count - 1];
@@ -720,7 +732,7 @@ namespace INotify.Core
             var firstItem = default(T);
             var lastItem = default(T);
 
-            if (Count > 0)
+            if (Count is > 0)
             {
                 firstItem = this[0];
                 lastItem = this[Count - 1];
@@ -737,25 +749,12 @@ namespace INotify.Core
             return r;
         }
 
-        void Construct()
-        {
-            PropertyOf(() => FirstItem)
-                .DependsOnProperty(() => Count);
-
-            PropertyOf(() => LastItem)
-                .DependsOnProperty(() => Count);
-
-            _monitor = new SimpleMonitor();
-            _reactToCollection += RespondToCollectionReactions;
-            _reactToCollectionItemProperty += RespondToCollectionItemPropertyReactions;
-        }
-
-        bool IList.Contains(object item) => ((IList)_list).Contains((T)item);
+        bool IList.Contains(object? item) => ((IList)_list).Contains(item);
         void ICollection.CopyTo(Array array, int arrayIndex) => ((ICollection)_list).CopyTo(array, arrayIndex);
 
         void EnqueueSuspendedNotification(ReactToPropertyEventArgs suspended)
         {
-            if (_suspendedPropertyReactions.Any(item => item.PropertyName.Equals(suspended.PropertyName)))
+            if (_suspendedPropertyReactions.Any(item => item.PropertyName?.Equals(suspended.PropertyName) ?? suspended.PropertyName is null))
                 return;
 
             _suspendedPropertyReactions.Enqueue(suspended);
@@ -765,7 +764,7 @@ namespace INotify.Core
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => ((IEnumerable<T>)_list).GetEnumerator();
 
-        void IgnoreChild(T child)
+        void IgnoreChild(T? child)
         {
             switch (child)
             {
@@ -781,31 +780,31 @@ namespace INotify.Core
             }
         }
 
-        void IgnoreCollectionItemPropertyChangesOn(INotifyPropertyChanged listened)
+        void IgnoreCollectionItemPropertyChangesOn(INotifyPropertyChanged? listened)
         {
-            if (listened != null)
+            if (listened is not null)
                 listened.PropertyChanged -= RespondToChildPropertyReactions;
         }
 
-        void IgnoreCollectionItemPropertyReactionsOn(Notifier listened)
+        void IgnoreCollectionItemPropertyReactionsOn(Notifier? listened)
         {
-            if (listened != null)
+            if (listened is not null)
                 listened.ReactToProperty -= RespondToChildPropertyReactions;
         }
 
-        int IList.IndexOf(object item) => ((IList)_list).IndexOf((T)item);
+        int IList.IndexOf(object? item) => ((IList)_list).IndexOf(item);
         int IList<T>.IndexOf(T item) => ((IList<T>)_list).IndexOf(item);
-        void IList.Insert(int index, object item) => Insert(index, (T)item);
+        void IList.Insert(int index, object? item) => Insert(index, (T)item!);
 
-        void ListenForCollectionItemPropertyChangesOn(INotifyPropertyChanged listened)
+        void ListenForCollectionItemPropertyChangesOn(INotifyPropertyChanged? listened)
         {
-            if (listened != null)
+            if (listened is not null)
                 listened.PropertyChanged += RespondToChildPropertyReactions;
         }
 
-        void ListenForCollectionItemPropertyReactionsOn(Notifier listened)
+        void ListenForCollectionItemPropertyReactionsOn(Notifier? listened)
         {
-            if (listened != null)
+            if (listened is not null)
                 listened.ReactToProperty += RespondToChildPropertyReactions;
         }
 
@@ -827,18 +826,17 @@ namespace INotify.Core
 
         void IReactToCollection.OnCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
-            if (!IsNotificationsEnabled || args == null)
+            if (!IsNotificationsEnabled)
                 return;
 
-            var disposable = BlockReentrancy();
+            using var _ = BlockReentrancy();
 
-            using (disposable)
-                _collectionChanged?.Invoke(this, args);
+            _collectionChanged?.Invoke(this, args);
         }
 
-        void OnCollectionItemPropertyReaction(ReactToCollectionItemPropertyEventArgs args)
+        void OnCollectionItemPropertyReaction(ReactToCollectionItemPropertyEventArgs? args)
         {
-            if (args != null && IsNotificationsEnabled)
+            if (args is not null && IsNotificationsEnabled)
                 _reactToCollectionItemProperty?.Invoke(this, args);
         }
 
@@ -848,32 +846,35 @@ namespace INotify.Core
                 EnqueueSuspendedNotification(args);
             else
             {
-                if (args == null)
-                    return;
-
                 CollectionSessions.TrackReaction(this, args);
 
                 if (!IsNotificationsEnabled)
                     return;
 
-                var disposable = BlockReentrancy();
+                using var _ = BlockReentrancy();
 
-                using (disposable)
-                    _reactToCollection?.Invoke(this, args);
+                _reactToCollection?.Invoke(this, args);
             }
         }
 
         void OnReactToProperty(ReactToPropertyEventArgs args) => OnReactToProperty(args.Session, args.PropertyName);
-        void IList.Remove(object item) => Remove((T)item);
 
-        void RespondToChildPropertyReactions(object sender, PropertyChangedEventArgs args)
+        void IList.Remove(object? item)
+        {
+            if (item is null)
+                return;
+
+            Remove((T)item);
+        }
+
+        void RespondToChildPropertyReactions(object? sender, PropertyChangedEventArgs args)
         {
             var session = StartSession();
-            OnCollectionItemPropertyReaction(new ReactToCollectionItemPropertyEventArgs(sender as INotifyPropertyChanged, new ReactToPropertyEventArgs(session, args.PropertyName)));
+            OnCollectionItemPropertyReaction(new(sender as INotifyPropertyChanged, new(session, args.PropertyName)));
             EndSession(session);
         }
 
-        void RespondToChildPropertyReactions(object sender, ReactToPropertyEventArgs args) => OnCollectionItemPropertyReaction(new ReactToCollectionItemPropertyEventArgs(sender as Notifier, args));
+        void RespondToChildPropertyReactions(object? sender, ReactToPropertyEventArgs args) => OnCollectionItemPropertyReaction(new(sender as Notifier, args));
 
         #endregion
 
@@ -890,11 +891,8 @@ namespace INotify.Core
 
             #region constructors
 
-            protected internal PropertyDependencyMapper(string dependentPropertyName, NotifyingCollection<T> notifyingCollection)
-            {
-                _notifyingCollection = notifyingCollection;
-                _dependentPropertyName = dependentPropertyName;
-            }
+            protected internal PropertyDependencyMapper(string dependentPropertyName, NotifyingCollection<T> notifyingCollection) =>
+                (_notifyingCollection, _dependentPropertyName) = (notifyingCollection, dependentPropertyName);
 
             #endregion
 
@@ -935,7 +933,7 @@ namespace INotify.Core
             }
 
             public PropertyDependencyMapper DependsOnReferenceProperty<TRef, TInst, TProp>(Expression<Func<TRef>> reference, Expression<Func<TInst, TProp>> property) where TRef : INotifyPropertyChanged
-                                                                                                                                                                      where TInst : TRef
+                where TInst : TRef
             {
                 _notifyingCollection.LocalPropertyDependencies.Get(reference.GetName())
                                     .Affects(_dependentPropertyName);
@@ -983,10 +981,7 @@ namespace INotify.Core
             #endregion
         }
 
-#if NET40
-        [Serializable]
-#endif
-        class SimpleMonitor : IDisposable
+        sealed class SimpleMonitor : IDisposable
         {
             #region fields
 
@@ -996,23 +991,14 @@ namespace INotify.Core
 
             #region properties
 
-            public bool Busy => _busyCount > 0;
+            public bool Busy => _busyCount is > 0;
 
             #endregion
 
             #region methods
 
-            public void Dispose()
-            {
-                var simpleMonitor = this;
-                simpleMonitor._busyCount = simpleMonitor._busyCount - 1;
-            }
-
-            public void Enter()
-            {
-                var simpleMonitor = this;
-                simpleMonitor._busyCount = simpleMonitor._busyCount + 1;
-            }
+            public void Dispose() => _busyCount -= 1;
+            public void Enter() => _busyCount += 1;
 
             #endregion
         }

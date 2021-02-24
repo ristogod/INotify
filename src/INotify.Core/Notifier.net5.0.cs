@@ -1,4 +1,4 @@
-﻿#if !NETSTANDARD2_1 && !NETCOREAPP3_1 && !NET5_0
+﻿#if NETSTANDARD2_1 || NETCOREAPP3_1 || NET5_0
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using INotify.Core.Dictionaries;
 using INotify.Core.EventArguments;
 using INotify.Core.Extensions;
 using INotify.Core.Internal;
+using static System.String;
 
 namespace INotify.Core
 {
@@ -118,7 +119,7 @@ namespace INotify.Core
         {
             var handler = _reactToProperty;
 
-            if (handler is null || propertyName is null or "" || propertyName.Trim() is "")
+            if (handler is null || IsNullOrWhiteSpace(propertyName))
                 return;
 
             ReactToPropertyEventArgs args = new(session, propertyName);
@@ -281,21 +282,19 @@ namespace INotify.Core
         {
             if (CollectionSessions.TryRemove(session, out var collectionNotifications))
             {
-                foreach (var cn in collectionNotifications)
-                    cn.Key.OnCollectionChanged(cn.Value);
+                foreach (var (key, value) in collectionNotifications)
+                    key.OnCollectionChanged(value);
             }
 
             if (!PropertySessions.TryRemove(session, out var propertyNotifications))
                 return;
 
-            foreach (var propertyNotification in propertyNotifications)
+            foreach (var (notifier, value) in propertyNotifications)
             {
-                var notifier = propertyNotification.Key;
-
                 if (!notifier.IsNotificationsEnabled)
                     continue;
 
-                foreach (var pd in propertyNotification.Value)
+                foreach (var pd in value)
                     notifier.OnPropertyChanged(pd.Value);
             }
         }
@@ -470,7 +469,7 @@ namespace INotify.Core
                 ListenForCollectionItemPropertyReactionsOn(propertyName, reactToCollectionItemProperty);
         }
 
-        void RespondToCollectionChanges(object sender, NotifyCollectionChangedEventArgs args)
+        void RespondToCollectionChanges(object? sender, NotifyCollectionChangedEventArgs args)
         {
             if (sender is not INotifyCollectionChanged)
                 return;
@@ -489,7 +488,7 @@ namespace INotify.Core
             }
         }
 
-        void RespondToPropertyChanges(object sender, PropertyChangedEventArgs args)
+        void RespondToPropertyChanges(object? sender, PropertyChangedEventArgs args)
         {
             if (sender is not INotifyPropertyChanged)
                 return;

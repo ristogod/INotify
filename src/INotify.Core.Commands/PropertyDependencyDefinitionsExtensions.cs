@@ -9,7 +9,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions Execute(this PropertyDependencyDefinitions propertyDependencyDefinitions, ICommand command)
         {
-            if (command != null)
+            if (command is not null)
                 propertyDependencyDefinitions.Executions.Add(() => command.Execute(null));
 
             return propertyDependencyDefinitions;
@@ -17,7 +17,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions Execute(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand command)
         {
-            if (command != null)
+            if (command is not null)
                 propertyDependencyDefinitions.Executions.Add(command.Execute);
 
             return propertyDependencyDefinitions;
@@ -25,7 +25,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions Execute<TParam>(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand<TParam> command, TParam value)
         {
-            if (command != null)
+            if (command is not null)
                 propertyDependencyDefinitions.Executions.Add(() => command.Execute(value));
 
             return propertyDependencyDefinitions;
@@ -33,7 +33,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions IfCanExecute(this PropertyDependencyDefinitions propertyDependencyDefinitions, ICommand command)
         {
-            if (command != null)
+            if (command is not null)
             {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
@@ -47,7 +47,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions IfCanExecute(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand command)
         {
-            if (command != null)
+            if (command is not null)
             {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
@@ -61,7 +61,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions IfCanExecute<TParam>(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand<TParam> command, TParam value)
         {
-            if (command != null)
+            if (command is not null)
             {
                 propertyDependencyDefinitions.Executions.Add(() =>
                                                              {
@@ -75,7 +75,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions Raise(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand command)
         {
-            if (command != null)
+            if (command is not null)
                 propertyDependencyDefinitions.Executions.Add(command.RaiseCanExecuteChanged);
 
             return propertyDependencyDefinitions;
@@ -83,7 +83,7 @@ namespace INotify.Core.Commands
 
         public static PropertyDependencyDefinitions Raise<TParam>(this PropertyDependencyDefinitions propertyDependencyDefinitions, RelayCommand<TParam> command)
         {
-            if (command != null)
+            if (command is not null)
                 propertyDependencyDefinitions.Executions.Add(command.RaiseCanExecuteChanged);
 
             return propertyDependencyDefinitions;

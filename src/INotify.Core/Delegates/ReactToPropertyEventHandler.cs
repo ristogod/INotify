@@ -2,5 +2,5 @@
 
 namespace INotify.Core.Delegates
 {
-    public delegate void ReactToPropertyEventHandler(object sender, ReactToPropertyEventArgs args);
+    public delegate void ReactToPropertyEventHandler(object? sender, ReactToPropertyEventArgs args);
 }

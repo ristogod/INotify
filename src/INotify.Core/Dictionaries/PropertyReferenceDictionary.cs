@@ -8,22 +8,17 @@ namespace INotify.Core.Dictionaries
 
         public void Add(string referenceName, T reference)
         {
-            if (referenceName == null || reference == null)
+            if (reference is null)
                 return;
 
             Remove(referenceName);
             TryAdd(referenceName, reference);
         }
 
-        public T Remove(string referenceName)
-        {
-            var outValue = default(T);
-
-            if (referenceName != null)
-                TryRemove(referenceName, out outValue);
-
-            return outValue;
-        }
+        public T? Remove(string referenceName) =>
+            TryRemove(referenceName, out var outValue)
+                ? outValue
+                : default;
 
         #endregion
     }

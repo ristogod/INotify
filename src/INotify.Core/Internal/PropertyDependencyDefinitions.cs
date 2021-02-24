@@ -10,8 +10,8 @@ namespace INotify.Core.Internal
     {
         #region fields
 
-        public readonly List<Action> Executions = new List<Action>();
-        internal readonly List<Property> List = new List<Property>();
+        public readonly List<Action> Executions = new();
+        internal readonly List<Property> List = new();
 
         #endregion
 
@@ -25,8 +25,7 @@ namespace INotify.Core.Internal
 
         public PropertyDependencyDefinitions Execute(Action action)
         {
-            if (action != null)
-                Executions.Add(action);
+            Executions.Add(action);
 
             return this;
         }
@@ -37,10 +36,10 @@ namespace INotify.Core.Internal
         {
             var propertyName = List.SingleOrDefault(p => p.Equals(property));
 
-            if (propertyName != null)
+            if (propertyName is not null)
                 return this;
 
-            propertyName = new Property(property);
+            propertyName = new(property);
             List.Add(propertyName);
 
             return this;

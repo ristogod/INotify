@@ -1,6 +1,7 @@
-﻿#if !NET5_0
+﻿#if NET5_0
 using System.Collections.Concurrent;
 using INotify.Core.EventArguments;
+using static System.String;
 
 namespace INotify.Core.Dictionaries
 {
@@ -10,7 +11,7 @@ namespace INotify.Core.Dictionaries
 
         public bool TrackReaction(Notifier notifier, ReactToPropertyEventArgs args)
         {
-            if (args.Session is <= 0)
+            if (args.Session is <= 0 || IsNullOrWhiteSpace(args.PropertyName))
                 return false;
 
             var tracked = true;

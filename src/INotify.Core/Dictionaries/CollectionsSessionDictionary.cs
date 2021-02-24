@@ -10,17 +10,17 @@ namespace INotify.Core.Dictionaries
 
         public void TrackReaction(IReactToCollection collection, ReactToCollectionEventArgs args)
         {
-            if (args.Session > 0)
+            if (args.Session is > 0)
             {
                 AddOrUpdate(args.Session,
-                            sessionKey =>
+                            _ =>
                             {
-                                var ncd = new CollectionChangesDictionary();
+                                CollectionChangesDictionary ncd = new();
                                 ncd.TryAdd(collection, args);
 
                                 return ncd;
                             },
-                            (sessionKey, ncd) =>
+                            (_, ncd) =>
                             {
                                 ncd.TryAdd(collection, args);
 

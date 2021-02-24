@@ -6,7 +6,12 @@
     <s:Boolean x:Key="/Default/CodeEditing/Intellisense/CodeCompletion/IntelliSenseCompletingCharacters/CSharpCompletingCharacters/UpgradedFromVSSettings/@EntryValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/CodeEditing/TypingAssist/Xaml/CreateCollapsedTagsInCodeCompletion/@EntryValue">True</s:Boolean>
     <s:Boolean x:Key="/Default/CodeInspection/ExcludedFiles/FileMasksToSkip/=_002A_002Edesigner_002Ecs/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/AnalysisEnabled/@EntryValue">VISIBLE_FILES</s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/IdentifierHighlightingEnabled/@EntryValue">True</s:Boolean>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AnnotateCanBeNullParameter/@EntryIndexedValue">WARNING</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AnnotateCanBeNullTypeMember/@EntryIndexedValue">WARNING</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AnnotateNotNullParameter/@EntryIndexedValue">WARNING</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=AnnotateNotNullTypeMember/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ArgumentsStyleAnonymousFunction/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ArgumentsStyleLiteral/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ArgumentsStyleNamedExpression/@EntryIndexedValue">WARNING</s:String>
@@ -61,6 +66,8 @@
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckForReferenceEqualityInstead_002E3/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckForReferenceEqualityInstead_002E4/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=CheckForReferenceEqualityInstead_002E4/@EntryIndexRemoved">True</s:Boolean>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ClassCanBeSealed_002EGlobal/@EntryIndexedValue">WARNING</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ClassCanBeSealed_002ELocal/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ClassNeverInstantiated_002EGlobal/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ClassNeverInstantiated_002EGlobal/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=ClassNeverInstantiated_002ELocal/@EntryIndexedValue"></s:String>
@@ -304,8 +311,10 @@
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SimplifyLinqExpression/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SimplifyLinqExpression/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SpecifyStringComparison/@EntryIndexedValue">SUGGESTION</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringEndsWithIsCultureSpecific/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringLiteralAsInterpolationArgument/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringLiteralAsInterpolationArgument/@EntryIndexRemoved">True</s:Boolean>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=StringStartsWithIsCultureSpecific/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SuggestBaseTypeForParameter/@EntryIndexedValue">SUGGESTION</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SuggestDiscardDeclarationVarStyle/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SuggestVarOrType_005FBuiltInTypes/@EntryIndexedValue">WARNING</s:String>
@@ -314,6 +323,7 @@
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SuggestVarOrType_005FSimpleTypes/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=SwitchStatementMissingSomeCases/@EntryIndexedValue">SUGGESTION</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=TabsAndSpacesMismatch/@EntryIndexedValue">SUGGESTION</s:String>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=TabsAreDisallowed/@EntryIndexedValue">WARNING</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=TabsOutsideIndent/@EntryIndexedValue">SUGGESTION</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=TailRecursiveCall/@EntryIndexedValue">SUGGESTION</s:String>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=TooWideLocalVariableScope/@EntryIndexedValue"></s:String>
@@ -338,10 +348,10 @@
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseFormatSpecifierInInterpolation/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIndexedProperty/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIndexedProperty/@EntryIndexRemoved">True</s:Boolean>
-    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E1/@EntryIndexedValue"></s:String>
-    <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E1/@EntryIndexRemoved">True</s:Boolean>
-    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E2/@EntryIndexedValue"></s:String>
-    <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E2/@EntryIndexRemoved">True</s:Boolean>
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E1/@EntryIndexedValue">WARNING</s:String>
+    
+    <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseIsOperator_002E2/@EntryIndexedValue">WARNING</s:String>
+    
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseMethodAny_002E0/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseMethodAny_002E0/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseMethodAny_002E1/@EntryIndexedValue"></s:String>
@@ -366,8 +376,12 @@
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=VirtualMemberNeverOverridden_002ELocal/@EntryIndexedValue"></s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=VirtualMemberNeverOverridden_002ELocal/@EntryIndexRemoved">True</s:Boolean>
     <s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=WrongIndentSize/@EntryIndexedValue">SUGGESTION</s:String>
+    <s:Boolean x:Key="/Default/CodeStyle/CodeCleanup/CleanupOnSave/@EntryValue">True</s:Boolean>
+    <s:Boolean x:Key="/Default/CodeStyle/CodeCleanup/PartCleanupOnRecentlyModifiedFiles/@EntryValue">False</s:Boolean>
+    <s:Boolean x:Key="/Default/CodeStyle/CodeCleanup/PartCleanupOnSave/@EntryValue">False</s:Boolean>
     <s:String x:Key="/Default/CodeStyle/CodeCleanup/Profiles/=default/@EntryIndexedValue">&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;Profile name="default"&gt;&lt;CSReorderTypeMembers&gt;True&lt;/CSReorderTypeMembers&gt;&lt;RemoveCodeRedundancies&gt;True&lt;/RemoveCodeRedundancies&gt;&lt;CSUseAutoProperty&gt;True&lt;/CSUseAutoProperty&gt;&lt;CSMakeFieldReadonly&gt;True&lt;/CSMakeFieldReadonly&gt;&lt;CSMakeAutoPropertyGetOnly&gt;True&lt;/CSMakeAutoPropertyGetOnly&gt;&lt;CSArrangeQualifiers&gt;True&lt;/CSArrangeQualifiers&gt;&lt;CSFixBuiltinTypeReferences&gt;True&lt;/CSFixBuiltinTypeReferences&gt;&lt;CSEnforceVarKeywordUsageSettings&gt;True&lt;/CSEnforceVarKeywordUsageSettings&gt;&lt;CSOptimizeUsings&gt;&lt;OptimizeUsings&gt;True&lt;/OptimizeUsings&gt;&lt;EmbraceInRegion&gt;False&lt;/EmbraceInRegion&gt;&lt;RegionName&gt;&lt;/RegionName&gt;&lt;/CSOptimizeUsings&gt;&lt;CSShortenReferences&gt;True&lt;/CSShortenReferences&gt;&lt;CSReformatCode&gt;True&lt;/CSReformatCode&gt;&lt;VBOptimizeImports&gt;True&lt;/VBOptimizeImports&gt;&lt;VBShortenReferences&gt;True&lt;/VBShortenReferences&gt;&lt;VBReformatCode&gt;True&lt;/VBReformatCode&gt;&lt;VBFormatDocComments&gt;True&lt;/VBFormatDocComments&gt;&lt;/Profile&gt;</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeCleanup/RecentlyUsedProfile/@EntryValue">Default: Full Cleanup</s:String>
+    <s:Boolean x:Key="/Default/CodeStyle/CodeCleanup/SaveAfterCleanup/@EntryValue">True</s:Boolean>
     <s:String x:Key="/Default/CodeStyle/CodeCleanup/SilentCleanupProfile/@EntryValue">Default: Full Cleanup</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_DOWHILE/@EntryValue">RequiredForMultiline</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_FIXED/@EntryValue">RequiredForMultiline</s:String>
@@ -382,6 +396,7 @@
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/DEFAULT_PRIVATE_MODIFIER/@EntryValue">Implicit</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/LOCAL_FUNCTION_BODY/@EntryValue">ExpressionBody</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/METHOD_OR_OPERATOR_BODY/@EntryValue">ExpressionBody</s:String>
+    <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/OBJECT_CREATION_WHEN_TYPE_NOT_EVIDENT/@EntryValue">TargetTyped</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/PARENTHESES_NON_OBVIOUS_OPERATIONS/@EntryValue">Shift, Bitwise</s:String>
     <s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/PARENTHESES_REDUNDANCY_STYLE/@EntryValue">Remove</s:String>
     <s:Boolean x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/USE_HEURISTICS_FOR_BODY_STYLE/@EntryValue">False</s:Boolean>

@@ -51,12 +51,12 @@ namespace INotify.Core.Commands
         {
             add
             {
-                if (_canExecute != null)
+                if (_canExecute is not null)
                     RequerySuggested += value;
             }
             remove
             {
-                if (_canExecute != null)
+                if (_canExecute is not null)
                     RequerySuggested -= value;
             }
         }
@@ -117,12 +117,12 @@ namespace INotify.Core.Commands
         {
             add
             {
-                if (_canExecute != null)
+                if (_canExecute is not null)
                     RequerySuggested += value;
             }
             remove
             {
-                if (_canExecute != null)
+                if (_canExecute is not null)
                     RequerySuggested -= value;
             }
         }
