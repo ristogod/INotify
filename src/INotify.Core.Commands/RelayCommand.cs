@@ -37,11 +37,7 @@ namespace INotify.Core.Commands
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>
-        public RelayCommand(Action<T> execute, Predicate<T> canExecute)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
+        public RelayCommand(Action<T> execute, Predicate<T> canExecute) => (_execute, _canExecute) = (execute ?? throw new ArgumentNullException(nameof(execute)), canExecute);
 
         #endregion
 
@@ -103,11 +99,7 @@ namespace INotify.Core.Commands
         /// </summary>
         /// <param name="execute">The execution logic.</param>
         /// <param name="canExecute">The execution status logic.</param>
-        public RelayCommand(Action execute, Func<bool> canExecute)
-        {
-            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecute = canExecute;
-        }
+        public RelayCommand(Action execute, Func<bool> canExecute) => (_execute, _canExecute) = (execute ?? throw new ArgumentNullException(nameof(execute)), canExecute);
 
         #endregion
 
