@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using INotify.Core.Internal;
 
 namespace INotify.Core.EventArguments
 {
@@ -6,13 +7,13 @@ namespace INotify.Core.EventArguments
     {
         #region constructors
 
-        public ReactToPropertyEventArgs(long session, string? propertyName) : base(propertyName) => Session = session;
+        public ReactToPropertyEventArgs(Session session, string? propertyName) : base(propertyName) => Session = session;
 
         #endregion
 
         #region properties
 
-        public long Session { get; internal set; }
+        public Session Session { get; internal set; }
 
         #endregion
     }

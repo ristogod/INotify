@@ -21,10 +21,6 @@ namespace INotify.Core
     {
         #region fields
 
-        internal static readonly CollectionsSessionDictionary CollectionSessions = new();
-        internal static readonly PropertiesSessionDictionary PropertySessions = new();
-        static readonly object Locker = new();
-        static long _session;
         protected internal bool IsNotificationsEnabled = true;
         internal readonly PropertyDependenciesDictionary LocalPropertyDependencies = new();
         internal readonly PropertyDependenciesDictionary ReferencedCollectionDependencies = new();
@@ -115,7 +111,7 @@ namespace INotify.Core
             _dependentPropertyValuesDictionary.Clear();
         }
 
-        protected internal virtual void OnReactToProperty(long session, string? propertyName)
+        protected internal virtual void OnReactToProperty(Session session, string? propertyName)
         {
             var handler = _reactToProperty;
 
@@ -124,7 +120,7 @@ namespace INotify.Core
 
             ReactToPropertyEventArgs args = new(session, propertyName);
 
-            if (!PropertySessions.TrackReaction(this, args))
+            if (!session.TrackReaction(this, args))
                 return;
 
             if (_dependentPropertyValuesDictionary.TryRemove(propertyName, out var value))
@@ -134,7 +130,7 @@ namespace INotify.Core
                 handler(this, args);
         }
 
-        protected internal void RaiseDependencies(long session, string? propertyName, PropertyDependenciesDictionary dependencies)
+        protected internal void RaiseDependencies(Session session, string? propertyName, PropertyDependenciesDictionary dependencies)
         {
             if (propertyName is null || !dependencies.TryGetValue(propertyName, out var properties))
                 return;
@@ -143,7 +139,7 @@ namespace INotify.Core
             RaiseDependencies(session, properties);
         }
 
-        protected internal void RaiseDependencies(long session, PropertyDependencyDefinitions dependencies) => dependencies.List.ForEach(property => OnReactToProperty(session, property.Name));
+        protected internal void RaiseDependencies(Session session, PropertyDependencyDefinitions dependencies) => dependencies.List.ForEach(property => OnReactToProperty(session, property.Name));
 
         protected internal virtual void RespondToCollectionItemPropertyReactions(object sender, ReactToCollectionItemPropertyEventArgs args)
         {
@@ -270,46 +266,11 @@ namespace INotify.Core
             if (!changed && !notifyWhenUnchanged)
                 return false;
 
-            var session = StartSession();
+            using Session session = new();
 
             OnReactToProperty(session, propertyName);
-            EndSession(session);
 
             return changed;
-        }
-
-        internal static void EndSession(long session)
-        {
-            if (CollectionSessions.TryRemove(session, out var collectionNotifications))
-            {
-                foreach (var (key, value) in collectionNotifications)
-                    key.OnCollectionChanged(value);
-            }
-
-            if (!PropertySessions.TryRemove(session, out var propertyNotifications))
-                return;
-
-            foreach (var (notifier, value) in propertyNotifications)
-            {
-                if (!notifier.IsNotificationsEnabled)
-                    continue;
-
-                foreach (var pd in value)
-                    notifier.OnPropertyChanged(pd.Value);
-            }
-        }
-
-        internal static long StartSession()
-        {
-            lock (Locker)
-            {
-                unchecked
-                {
-                    _session++;
-                }
-
-                return _session;
-            }
         }
 
         internal void OnPropertyChanged(PropertyChangedEventArgs args) => _propertyChanged?.Invoke(this, args);
@@ -478,10 +439,9 @@ namespace INotify.Core
             {
                 if (ReferencedCollectionDependencies.TryGetValue(reference.Key, out var dependencies))
                 {
-                    var session = StartSession();
+                    using Session session = new();
 
                     RaiseDependencies(session, dependencies);
-                    EndSession(session);
                 }
 
                 break;
@@ -497,11 +457,9 @@ namespace INotify.Core
             {
                 if (ReferencedPropertyDependencies.TryGetValue(reference.Key, out var dependencies))
                 {
-                    var session = StartSession();
+                    using Session session = new();
 
                     RaiseDependencies(session, args.PropertyName, dependencies);
-
-                    EndSession(session);
                 }
 
                 break;

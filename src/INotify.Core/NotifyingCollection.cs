@@ -183,9 +183,9 @@ namespace INotify.Core
                 if (oldValue == value)
                     return;
 
-                var session = StartSession();
+                using Session session = new();
+
                 OnReactToProperty(session, CAPACITY);
-                EndSession(session);
             }
         }
 
@@ -202,10 +202,10 @@ namespace INotify.Core
             get => _list[index];
             set
             {
-                var session = StartSession();
+                using Session session = new();
 
                 CheckPropertyEnds(session,
-                                  () =>
+                                  s =>
                                   {
                                       var oldValue = _list[index];
                                       _list[index] = value;
@@ -213,11 +213,10 @@ namespace INotify.Core
                                       IgnoreChild(oldValue);
                                       ListenToChild(value);
 
-                                      OnReactToCollection(new(session, Replace, value, oldValue, index));
-                                      OnReactToProperty(session, ITEM);
-                                      OnReactToProperty(session, COUNT);
+                                      OnReactToCollection(new(s, Replace, value, oldValue, index));
+                                      OnReactToProperty(s, ITEM);
+                                      OnReactToProperty(s, COUNT);
                                   });
-                EndSession(session);
             }
         }
 
@@ -258,21 +257,21 @@ namespace INotify.Core
         public virtual void Add(T item)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   var index = Count;
                                   _list.Add(item);
 
                                   ListenToChild(item);
 
-                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
+                                  OnReactToCollection(new(s, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToProperty(s, ITEM);
+                                  OnReactToProperty(s, COUNT);
                               });
-            EndSession(session);
         }
 
         public virtual void AddRange(IEnumerable<T> collection)
@@ -280,7 +279,7 @@ namespace INotify.Core
             if (collection is null)
                 throw new ArgumentNullException(nameof(collection));
 
-            var session = StartSession();
+            using Session session = new();
 
             GroupNotifications(new(session, Reset),
                                () =>
@@ -288,7 +287,6 @@ namespace INotify.Core
                                    foreach (var item in collection)
                                        QuietItemWhile(item, Add);
                                });
-            EndSession(session);
         }
 
         public ReadOnlyCollection<T> AsReadOnly() => _list.AsReadOnly();
@@ -299,10 +297,11 @@ namespace INotify.Core
         public virtual void Clear()
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   var oldValues = ToArray();
                                   _list.Clear();
@@ -310,11 +309,10 @@ namespace INotify.Core
                                   foreach (var value in oldValues)
                                       IgnoreChild(value);
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
+                                  OnReactToProperty(s, COUNT);
                               });
-            EndSession(session);
         }
 
         public bool Contains(T item) => _list.Contains(item);
@@ -341,20 +339,20 @@ namespace INotify.Core
         public virtual void Insert(int index, T item)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Insert(index, item);
 
                                   ListenToChild(item);
 
-                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
+                                  OnReactToCollection(new(s, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToProperty(s, ITEM);
+                                  OnReactToProperty(s, COUNT);
                               });
-            EndSession(session);
         }
 
         public virtual void InsertRange(int index, IEnumerable<T> collection)
@@ -362,7 +360,8 @@ namespace INotify.Core
             if (collection is null)
                 throw new ArgumentNullException(nameof(collection));
 
-            var session = StartSession();
+            using Session session = new();
+
             var list = collection as IList<T> ?? collection.ToList();
 
             GroupNotifications(new(session, NotifyCollectionChangedAction.Add, list, index),
@@ -375,7 +374,6 @@ namespace INotify.Core
                                        index++;
                                    }
                                });
-            EndSession(session);
         }
 
         public int LastIndexOf(T item) => _list.LastIndexOf(item);
@@ -385,10 +383,11 @@ namespace INotify.Core
         public virtual bool Remove(T item)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             var removed = CheckPropertyEnds(session,
-                                            () =>
+                                            s =>
                                             {
                                                 var index = _list.IndexOf(item);
 
@@ -397,13 +396,12 @@ namespace INotify.Core
 
                                                 IgnoreChild(item);
 
-                                                OnReactToCollection(new(session, NotifyCollectionChangedAction.Remove, item, index));
-                                                OnReactToProperty(session, ITEM);
-                                                OnReactToProperty(session, COUNT);
+                                                OnReactToCollection(new(s, NotifyCollectionChangedAction.Remove, item, index));
+                                                OnReactToProperty(s, ITEM);
+                                                OnReactToProperty(s, COUNT);
 
                                                 return true;
                                             });
-            EndSession(session);
 
             return removed;
         }
@@ -412,7 +410,8 @@ namespace INotify.Core
         {
             var removed = _list.FindAll(match);
             var count = 0;
-            var session = StartSession();
+
+            using Session session = new();
 
             GroupNotifications(new(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
@@ -423,7 +422,6 @@ namespace INotify.Core
                                                            count++;
                                                    });
                                });
-            EndSession(session);
 
             return count;
         }
@@ -431,21 +429,21 @@ namespace INotify.Core
         public virtual void RemoveAt(int index)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   var item = this[index];
                                   _list.RemoveAt(index);
 
                                   IgnoreChild(item);
 
-                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Remove, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
+                                  OnReactToCollection(new(s, NotifyCollectionChangedAction.Remove, item, index));
+                                  OnReactToProperty(s, ITEM);
+                                  OnReactToProperty(s, COUNT);
                               });
-            EndSession(session);
         }
 
         public virtual void RemoveRange(int index, int count)
@@ -464,7 +462,7 @@ namespace INotify.Core
             for (var current = 0; current < count; current++)
                 removed.Add(this[index + current]);
 
-            var session = StartSession();
+            using Session session = new();
 
             GroupNotifications(new(session, NotifyCollectionChangedAction.Remove, removed),
                                () =>
@@ -472,23 +470,22 @@ namespace INotify.Core
                                    for (var current = 0; current < count; current++)
                                        RemoveAt(index);
                                });
-            EndSession(session);
         }
 
         public virtual void Reverse()
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Reverse();
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public virtual void Reverse(int index, int count)
@@ -503,88 +500,88 @@ namespace INotify.Core
                 throw new ArgumentOutOfRangeException(nameof(count));
 
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Reverse(index, count);
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public virtual void Sort()
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Sort();
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public virtual void Sort(Comparison<T> comparison)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Sort(comparison);
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public virtual void Sort(IComparer<T> comparer)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Sort(comparer);
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public virtual void Sort(int index, int count, IComparer<T> comparer)
         {
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   _list.Sort(index, count, comparer);
 
-                                  OnReactToCollection(new(session, Reset));
-                                  OnReactToProperty(session, ITEM);
+                                  OnReactToCollection(new(s, Reset));
+                                  OnReactToProperty(s, ITEM);
                               });
-            EndSession(session);
         }
 
         public T[] ToArray() => _list.ToArray();
         public void TrimExcess() => _list.TrimExcess();
         public bool TrueForAll(Predicate<T> match) => _list.TrueForAll(match);
 
-        protected internal override void OnReactToProperty(long session, string? propertyName)
+        protected internal override void OnReactToProperty(Session session, string? propertyName)
         {
             if (_isReactionsSuspended)
                 EnqueueSuspendedNotification(new ReactToPropertyEventArgs(session, propertyName));
@@ -688,26 +685,26 @@ namespace INotify.Core
                 return index;
 
             CheckReentrancy();
-            var session = StartSession();
+
+            using Session session = new();
 
             CheckPropertyEnds(session,
-                              () =>
+                              s =>
                               {
                                   index = Count;
                                   _list.Add(t);
 
                                   ListenToChild(t);
 
-                                  OnReactToCollection(new(session, NotifyCollectionChangedAction.Add, item, index));
-                                  OnReactToProperty(session, ITEM);
-                                  OnReactToProperty(session, COUNT);
+                                  OnReactToCollection(new(s, NotifyCollectionChangedAction.Add, item, index));
+                                  OnReactToProperty(s, ITEM);
+                                  OnReactToProperty(s, COUNT);
                               });
-            EndSession(session);
 
             return index;
         }
 
-        void CheckPropertyEnds(long session, Action action)
+        void CheckPropertyEnds(Session session, Action<Session> action)
         {
             var firstItem = default(T);
             var lastItem = default(T);
@@ -718,7 +715,7 @@ namespace INotify.Core
                 lastItem = this[Count - 1];
             }
 
-            action();
+            action(session);
 
             if (!Equals(FirstItem, firstItem))
                 OnReactToProperty(session, FIRST_ITEM);
@@ -727,7 +724,7 @@ namespace INotify.Core
                 OnReactToProperty(session, LAST_ITEM);
         }
 
-        TReturn CheckPropertyEnds<TReturn>(long session, Func<TReturn> function)
+        TReturn CheckPropertyEnds<TReturn>(Session session, Func<Session, TReturn> function)
         {
             var firstItem = default(T);
             var lastItem = default(T);
@@ -738,7 +735,7 @@ namespace INotify.Core
                 lastItem = this[Count - 1];
             }
 
-            var r = function();
+            var r = function(session);
 
             if (!Equals(FirstItem, firstItem))
                 OnReactToProperty(session, FIRST_ITEM);
@@ -846,7 +843,7 @@ namespace INotify.Core
                 EnqueueSuspendedNotification(args);
             else
             {
-                CollectionSessions.TrackReaction(this, args);
+                args.Session.TrackReaction(this, args);
 
                 if (!IsNotificationsEnabled)
                     return;
@@ -869,9 +866,9 @@ namespace INotify.Core
 
         void RespondToChildPropertyReactions(object? sender, PropertyChangedEventArgs args)
         {
-            var session = StartSession();
+            using Session session = new();
+
             OnCollectionItemPropertyReaction(new(sender as INotifyPropertyChanged, new(session, args.PropertyName)));
-            EndSession(session);
         }
 
         void RespondToChildPropertyReactions(object? sender, ReactToPropertyEventArgs args) => OnCollectionItemPropertyReaction(new(sender as Notifier, args));
