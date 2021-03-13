@@ -70,12 +70,12 @@ namespace INotify.Core.Internal
             if (_disposed)
                 return;
 
-            EndSession();
+            End();
 
             _disposed = true;
         }
 
-        internal void EndSession()
+        internal void End()
         {
             foreach (var (key, value) in CollectionChanges)
                 key.OnCollectionChanged(value);
